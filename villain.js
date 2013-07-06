@@ -369,22 +369,22 @@ var Map = function(){
     this.traps = [];
     this.selectedTrap = null;
 
-    for (var x = 0; x < 480; x += squareSize){
+    for (var x = 0; x < 540; x += squareSize){
         this.traps.push(new Trap(x, 0, allTraps['lava pit']));
-        this.traps.push(new Trap(x, 480 - squareSize, allTraps['lava pit']));
+        this.traps.push(new Trap(x, 540 - squareSize, allTraps['lava pit']));
         this.traps.push(new Trap(0, x, allTraps['lava pit']));
-        this.traps.push(new Trap(480 - squareSize, x, allTraps['lava pit']));
+        this.traps.push(new Trap(540 - squareSize, x, allTraps['lava pit']));
     }
     
-    for (var x = squareSize; x < 480 - squareSize; x += squareSize){
-        for (var y = squareSize; y < 480 - squareSize; y += squareSize){
+    for (var x = squareSize; x < 540 - squareSize; x += squareSize){
+        for (var y = squareSize; y < 540 - squareSize; y += squareSize){
             if ((x != 420 || y != 420) && (x != 0 || y != 0)){
                 this.squares.push(new Square(x, y));
             }
         }
     }
     this.traps.push(new HeroStart(squareSize, squareSize));
-    this.villain = new Villain(480 - 2 * squareSize, 480 - 2 * squareSize);
+    this.villain = new Villain(540 - 2 * squareSize, 540 - 2 * squareSize);
     this.traps.push(this.villain);
     bindHandler.bindFunction(this.getTouchFunction())
 };
@@ -556,7 +556,7 @@ Hero.prototype.update = function(interval, allThings){
     var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval;
     var canMove = true;
 
-    if (newX > 480 || newY > 480 || newX < 0 || newY < 0){
+    if (newX > 540 || newY > 540 || newX < 0 || newY < 0){
         canMove = false;
     }
 
