@@ -260,26 +260,36 @@ var Currencies = function() {
 
 var currencies = new Currencies();
 
-var BaseDraw = function(x, y, color){
+var BaseDraw = function(x, y, color, image){
     this.x = x;
     this.y = y;
     this.color = color;
+    this.image = image;
+    if (this.image != undefined){
+        this.image = new Image();
+        this.image.src = image;
+    }
 }
 
 BaseDraw.prototype.size = squareSize;
 
 BaseDraw.prototype.draw = function(fill, stroke){
-    ctx.fillStyle = typeof fill !== 'undefined' ? fill : this.color;
-    ctx.strokeStyle = typeof stroke !== 'undefined' ? stroke : "#FF0000";
-    ctx.fillRect(this.x, this.y, this.size, this.size);
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(this.x, this.y);
-    ctx.lineTo(this.x, this.y + this.size);
-    ctx.lineTo(this.x + this.size, this.y + this.size);
-    ctx.lineTo(this.x + this.size, this.y);
-    ctx.closePath();
-    ctx.stroke();
+    if (this.image != undefined){
+        ctx.drawImage(this.image, this.x, this.y, this.size, this.size);
+    }
+    else{
+        ctx.fillStyle = typeof fill !== 'undefined' ? fill : this.color;
+        ctx.strokeStyle = typeof stroke !== 'undefined' ? stroke : "#FF0000";
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x, this.y + this.size);
+        ctx.lineTo(this.x + this.size, this.y + this.size);
+        ctx.lineTo(this.x + this.size, this.y);
+        ctx.closePath();
+        ctx.stroke();
+    }
 };
 
 BaseDraw.prototype.getRect = function(){
@@ -302,7 +312,7 @@ bgImage.src = 'images/tileBG.png';
 
 
 var Trap = function(x, y, props){
-    this.basedraw = new BaseDraw(x, y, props['color']);
+    this.basedraw = new BaseDraw(x, y, props['color'], props['image']);
     this.name = props['name'];
     this.range = props['range'];
     this.damage = props['damage'];
@@ -447,17 +457,18 @@ Map.prototype.allThings = function(){
 }
 
 var allTraps = {
-    'one': {
-	'name': 'One',
+    'lava pit': {
+	'name': 'Wall',
         'color': '#ffff00',
+        'image': 'images/lava.png',
 	'cost': {
 	    'money': 10,
-	    'minions': 1
+	    'minions': 0
 	},
-	'range': 3 * squareSize,
-	'damage': 10,
-	'fireRate': 1,
-	'walkable': true
+	'range': 0,
+	'damage': 0,
+	'fireRate': 0,
+	'walkable': false
     },
     'two': {
 	'name': 'Two',
@@ -616,10 +627,6 @@ var heroPattern = ctx.createPattern(heroImage,'no-repeat');
 
 Hero.prototype.draw = function(){
     ctx.drawImage(heroImage,this.x,this.y,20,20);
- /*    ctx.rect(this.x, this.y, 20, 20);
-    ctx.strokeStyle = '#0099FF';
-    ctx.lineWidth = 1;
-    ctx.stroke();       */
     var heroString = document.getElementById('hero');
     heroString.innerHTML = 'health: ' + this.health;
 };
