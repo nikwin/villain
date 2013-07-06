@@ -292,12 +292,14 @@ var Square = function(x, y){
     this.walkable = true;
 };
 
-var bgImage = new Image(); bgImage.src = 'images/tileBG.png';
-var bgPattern = ctx.createPattern(bgImage,'repeat');
+var bgImage = new Image();
 
 Square.prototype.draw = function() {
-    this.basedraw.draw(bgPattern, "#CCCCCC");
+    this.basedraw.draw(ctx.createPattern(bgImage, "repeat"), "#CCCCCC");
 }
+
+bgImage.src = 'images/tileBG.png';
+
 
 var Trap = function(x, y, props){
     this.basedraw = new BaseDraw(x, y, props['color']);
