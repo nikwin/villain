@@ -500,8 +500,9 @@ SetupLevel.prototype.draw = function(){
 };
 
 SetupLevel.prototype.update = function(interval) {
-    var currenciesString = document.getElementById('currencies');
-    currenciesString.innerHTML = 'money: ' + currencies.money + ' minions: ' + currencies.minions + ' tech: ' + currencies.tech;
+    var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
+    var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
+    var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
     var selectedString = document.getElementById('selected');
     var selectedTrap = this.map.selectedTrap;
     if (selectedTrap !== null) {

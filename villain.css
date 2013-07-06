@@ -4,3 +4,29 @@
     text-align: center;
     border: 5px ridge #663300;
 }
+
+#HUD {
+    width: 600px;
+    background-color: rgb(101, 178, 201);
+    border-radius: 5px 5px 5px 5px;
+    font-size:17px;
+    line-height: 20px;
+    border: medium none;
+    text-align: center;
+    color: #FFFFFF;
+    font-weight: 500;
+}
+
+#money {
+    float:left;
+    padding-left: 15px;
+}
+
+#tech {
+   float:right;
+   padding-right: 25px;
+}
+
+#minions {
+  text-align: center;
+}
