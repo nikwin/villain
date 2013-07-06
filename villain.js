@@ -252,6 +252,8 @@ var overlapArea = function(rct1, rct2){
 
 var squareSize = 60;
 
+var game;
+
 var Currencies = function() {
     this.money = 0;
     this.minions = 0;
@@ -315,8 +317,33 @@ Square.prototype.draw = function() {
     }
 }
 
+var Shot = function(x, y, damage){
+    this.basedraw = new BaseDraw(x, y, '#ffffff');
+    this.basedraw.size = 10;
+}
 
+Shot.prototype.speed = 80;
 
+var getSquareDist = function(p1, p2){
+    var x = p1[0] - p2[0];
+    var y = p1[1] - p2[1];
+    return x*x + y*y;
+}
+
+Shot.prototype.update = function(interval, hero){
+    var dist = this.speed * interval;
+    var xRatio = (hero.x - this.basedraw.x) * (hero.x - this.basedraw.x);
+    var yRatio = (hero.y - this.basedraw.y) * (hero.y - this.basedraw.y);
+    var sum = xRatio + yRatio;
+    this.basedraw.x += (xRatio * dist / sum) * ((hero.x  > this.basedraw.x) ? 1 : -1);
+    this.basedraw.y += (yRatio * dist / sum) * ((hero.y  > this.basedraw.y) ? 1 : -1);
+    if (getSquareDist([this.basedraw.x, this.basedraw.y], [hero.x, hero.y]) < 100){
+        hero.health -= this.damage;
+        hero.wasShot = .3;
+        return true;
+    }
+    return false;
+}
 
 var Trap = function(x, y, props){
     this.basedraw = new BaseDraw(x, y, props['color'], props['image']);
@@ -324,9 +351,13 @@ var Trap = function(x, y, props){
     this.range = props['range'];
     this.damage = props['damage'];
     this.fireRate = props['fireRate'];
+    if (game.hasVillainTech('reload')) {
+	this.fireRate *= 1.5;
+    }
     this.walkable = props['walkable'];
     this.nextFire = 0;
     this.cost = props['cost'];
+    this.shots = [];
 };
 
 Trap.prototype.isInRange = function(x, y) {
@@ -339,18 +370,85 @@ Trap.prototype.fire = function(hero, time) {
     if (this.nextFire > 0 || !this.isInRange(hero.x, hero.y)) {
 	return;
     }
-    hero.health -= this.damage;
-    hero.wasShot = .3;
     this.nextFire = 1 / this.fireRate;
+    this.shots.push(new Shot(this.basedraw.x, this.basedraw.y, this.damage));
 }
 
 Trap.prototype.update = function(interval, hero) {
     this.fire(hero, interval);
+    for (var i = this.shots.length - 1; i >= 0; i--){
+        if (this.shots[i].update(interval, hero)){
+            this.shots.splice(i, 1);
+        }
+    }
 }
 
 Trap.prototype.draw = function() {
     this.basedraw.draw();
-    ctx.fillText(this.nextFire, this.basedraw.x, this.basedraw.y);
+    for (var i = 0; i < this.shots.length; i++){
+        this.shots[i].basedraw.draw();
+    }
+}
+
+var Punch = function(x, y, damage){
+    this.basedraw = new BaseDraw(x, y, '#ff0000');
+    this.basedraw.size = 20;
+    this.damage = damage;
+};
+
+Punch.prototype.speed = 400;
+
+Punch.prototype.update = function(interval, hero){
+    var dist = this.speed * interval;
+    var xRatio = (hero.x - this.basedraw.x) * (hero.x - this.basedraw.x);
+    var yRatio = (hero.y - this.basedraw.y) * (hero.y - this.basedraw.y);
+    var sum = xRatio + yRatio;
+    var vel = [(xRatio * dist / sum) * ((hero.x  > this.basedraw.x) ? 1 : -1),
+               (yRatio * dist / sum) * ((hero.y  > this.basedraw.y) ? 1 : -1)];
+    this.basedraw.x += vel[0];
+    this.basedraw.y += vel[1];
+    if (getSquareDist([this.basedraw.x, this.basedraw.y], [hero.x, hero.y]) < 100){
+        hero.health -= this.damage;
+        hero.forcedVelocity = [vel[0] / interval, vel[1] / interval];
+        return true;
+    }
+    return false;
+};
+
+
+var PunchTrap = function(x, y, props){
+    this.basedraw = new BaseDraw(x, y, props['color'], props['image']);
+    for (var key in props){
+        this[key] = props[key];
+    }
+    this.nextFire = 0;
+    this.animating = 0;
+    this.punch = null;
+}
+
+PunchTrap.prototype.isInRange = Trap.prototype.isInRange;
+
+PunchTrap.prototype.update = function(interval, hero){
+    this.nextFire = max(this.nextFire - interval, 0);
+    if (this.nextFire <= 0 && this.isInRange(hero.x, hero.y)) {
+	if (!this.punch){
+            this.punch = new Punch(this.basedraw.x, this.basedraw.y, this.damage);
+        }
+    }
+    if (this.punch && this.punch.update(interval, hero)){
+        this.punch = null;
+    }
+};
+
+PunchTrap.prototype.draw = function() {
+    this.basedraw.draw();
+    if (this.punch){
+        this.punch.basedraw.draw();
+    }
+};
+
+var makeTrap = function(x, y, props){
+    return new props.fn(x, y, props);
 }
 
 var Villain = function(x, y){
@@ -368,8 +466,7 @@ var EmptySpace = function(x, y){
 };
 
 var clearScreen = function(){
-    ctx.fillStyle = '#000000'
-    ctx.fillRect(0, 0, 1000, 1000);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 var Map = function(){
@@ -394,7 +491,7 @@ var Map = function(){
     this.traps.push(new HeroStart(squareSize, squareSize));
     this.villain = new Villain(540 - 2 * squareSize, 540 - 2 * squareSize);
     this.traps.push(this.villain);
-    bindHandler.bindFunction(this.getTouchFunction())
+    bindHandler.bindFunction(this.getTouchFunction());
 };
 
 Map.prototype.draw = function(){
@@ -417,10 +514,11 @@ Map.prototype.getTouchFunction = function(){
     return function(e){
         var pos = getPos(e);
 	var selectedTrap = that.selectedTrap;
+	var discount = game.hasVillainTech('cheap') ? .8 : 1;
 	if (selectedTrap !== null) {
 	    if (containsPos(selectedTrap.basedraw.getRect(), pos)) {
 		for (var currency in selectedTrap.cost) {
-		    currencies[currency] += selectedTrap.cost[currency];
+		    currencies[currency] += Math.floor(discount * selectedTrap.cost[currency]);
 		}
 		var i;
 		for (i = 0; i < that.traps.length; i++) {
@@ -438,17 +536,17 @@ Map.prototype.getTouchFunction = function(){
             if (containsPos(that.squares[i].basedraw.getRect(), pos)){
 		var trap = getTrap();
 		for (var currency in trap['cost']) {
-		    if (currencies[currency] < trap['cost'][currency]) {
+		    if (currencies[currency] < Math.floor(discount * trap['cost'][currency])) {
 			alert('you are too poor. get more ' + currency);
 			return;
 		    }
 		}
 		for (var currency in trap['cost']) {
-		    currencies[currency] -= trap['cost'][currency];
+		    currencies[currency] -= Math.floor(discount * trap['cost'][currency]);
 		}
                 var square = that.squares[i];
                 that.squares.splice(i, 1);
-                that.traps.push(new Trap(square.basedraw.x, square.basedraw.y, getTrap()));
+                that.traps.push(makeTrap(square.basedraw.x, square.basedraw.y, getTrap()));
 		that.selectedTrap = that.traps[that.traps.length - 1];
 		return;
             }
@@ -485,7 +583,8 @@ var allTraps = {
 	'range': 0,
 	'damage': 0,
 	'fireRate': 0,
-	'walkable': false
+	'walkable': false,
+        'fn': Trap
     },
     'turret': {
 	'name': 'Turret',
@@ -495,10 +594,25 @@ var allTraps = {
 	    'minions': 1
 	},
 	'range': 3 * squareSize,
-	'damage': 2,
+	'damage': 5,
 	'fireRate': 2,
-	'walkable': false
+	'walkable': false,
+        'fn': Trap
+    },
+    'punch': {
+        'name': 'Punchy',
+        'color': '#aaaaaa',
+        'cost': {
+            'money': 10,
+            'minions': 1
+        },
+        'range': 2 * squareSize,
+        'damage': 2,
+        'fireRate': 2,
+        'walkable': false,
+        'fn': PunchTrap
     }
+    
 }
 
 var getTrap = function() {
@@ -513,8 +627,7 @@ var getTrap = function() {
 
 var buttonPress = function(){};
 
-var SetupLevel = function(game) {
-    this.game = game;
+var SetupLevel = function() {
     this.map = new Map();
     this.active = true;
     buttonPress = this.makePressFunction();
@@ -528,6 +641,7 @@ SetupLevel.prototype.update = function(interval) {
     var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
     var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
     var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
+    var heroString = document.getElementById('hero'); heroString.innerHTML = '';
     var selectedString = document.getElementById('selected');
     var selectedTrap = this.map.selectedTrap;
     if (selectedTrap !== null) {
@@ -540,14 +654,15 @@ SetupLevel.prototype.update = function(interval) {
 SetupLevel.prototype.makePressFunction = function() {
     var that = this;
     return function(){
-	that.game.currentMode = new GameLevel(that.game, that.map);
+	game.currentMode = new GameLevel(that.map);
+	bindHandler.clear();
     }
 };
 
 var Hero = function(x, y){
     this.x = x;
     this.y = y;
-    this.health = 1000;
+    this.health = 100;
     this.currentDirection = 0;
     this.directions = [[1,0],
                        [0,1],
@@ -556,14 +671,15 @@ var Hero = function(x, y){
     this.walkingBlock = undefined;
     this.blocksTouching = [];
     this.wasShot = false;
+    this.forcedVelocity = [0, 0];
 };
 
-Hero.prototype.speed = 60;
+Hero.prototype.speed = 120;
 
 Hero.prototype.update = function(interval, allThings){
     this.wasShot -= interval;
-    var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval;
-    var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval;
+    var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval + this.forcedVelocity[0] * interval;
+    var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval + this.forcedVelocity[1] * interval;
     var canMove = true;
 
     if (newX > 540 || newY > 540 || newX < 0 || newY < 0){
@@ -607,8 +723,13 @@ Hero.prototype.update = function(interval, allThings){
         this.x = newX;
         this.y = newY;
         this.blocksTouching = blocksTouching;
+        this.forcedVelocity = [this.forcedVelocity[0] / 2, this.forcedVelocity[1] / 2];
+        if (this.forcedVelocity[0] < 4 && this.forcedVelocity[1] < 4){
+            this.forcedVelocity = [0, 0];
+        }
     }
     else{
+        this.forcedVelocity = [0, 0];
         this.currentDirection = undefined;
         for (var i = 0; i < this.directions.length && this.currentDirection == undefined; i++){
             var blockPos = this.snapSquare(this.directions[i]);
@@ -651,11 +772,11 @@ Hero.prototype.snapSquare = function(direction){
     var basey = Math.floor(this.y / squareSize) * squareSize + squareSize / 2;
     return [basex + direction[0] * squareSize,
             basey + direction[1] * squareSize];
-}
+};
 
 Hero.prototype.getRect = function(pos){
     return [pos[0], pos[1], 20, 20];
-}
+};
 
 var heroImage = new Image(); heroImage.src = 'images/hero.png';
 var heroPattern = ctx.createPattern(heroImage,'no-repeat');
@@ -665,22 +786,20 @@ Hero.prototype.draw = function(){
     ctx.drawImage(heroImage,this.x,this.y,20,20);
     var heroString = document.getElementById('hero');
     heroString.innerHTML = 'health: ' + this.health;
-    console.log('draw');
     if (this.wasShot > 0){
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
     }
 };
 
-var GameLevel = function(game, map) {
-    this.game = game;
+var GameLevel = function(map) {
     this.allThings = map.allThings();
     this.hero = new Hero(squareSize + 10, squareSize + 10);
     this.villain = map.villain;
 };
 
 GameLevel.prototype.changeModeForLevelEnd = function(victory) {
-    this.game.currentMode = new BetweenLevels(this.game, victory);
+    game.currentMode = new ResultsMode(victory);
 }
 
 GameLevel.prototype.checkLevelEnded = function() {
@@ -713,15 +832,15 @@ GameLevel.prototype.update = function(interval){
     this.checkLevelEnded();
 };
 
-var BetweenLevels = function(game, victory) {
-    this.game = game;
-    this.game.incrementLevel();
+var ResultsMode = function(victory) {
+    game.incrementLevel();
     this.drawScreen(victory);
     buttonPress = this.makePressFunction();
 }
 
-BetweenLevels.prototype.drawScreen = function(victory) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+ResultsMode.prototype.drawScreen = function(victory) {
+    var heroString = document.getElementById('hero'); heroString.innerHTML = '';
+    clearScreen();
     ctx.font = '20pt Arial';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'black';
@@ -734,25 +853,165 @@ BetweenLevels.prototype.drawScreen = function(victory) {
     ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
 
-BetweenLevels.prototype.update = function(interval) {
+ResultsMode.prototype.update = function(interval) {
 }
 
-BetweenLevels.prototype.draw = function() {
+ResultsMode.prototype.draw = function() {
 }
 
-BetweenLevels.prototype.makePressFunction = function() {
+ResultsMode.prototype.makePressFunction = function() {
     var that = this;
     return function() {
-	that.game.currentMode = new SetupLevel(that.game);
+	game.currentMode = new TechMode();
     }
 }
 
-var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}}, {'currencies': {'money': 300, 'tech': 0, 'minions': 10}}];
+var villainTechTree = [
+    {'id': 'reload', 'description': 'Traps reload faster', 'cost': 1, 'children': ['research']},
+    {'id': 'research', 'description': 'More tech per level', 'cost': 1, 'children': []},
+    {'id': 'cheap', 'description': 'Traps are cheaper', 'cost': 1, 'children': ['score']},
+    {'id': 'score', 'description': 'Bonus points per level', 'cost': 1, 'children': []} // no effect yet
+]
+
+var TechElement = function(x, y, tech) {
+    this.basedraw = new BaseDraw(x, y, '#ffffff');
+    this.tech = tech;
+    this.children = [];
+}
+
+TechElement.prototype.draw = function() {
+    if (game.hasVillainTech(this.tech['id'])) {
+	this.basedraw.draw('#aaaaaa');
+    } else {
+	this.basedraw.draw();
+    }
+    ctx.font = '10pt Arial';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'black';
+    ctx.fillText(this.tech['description'], this.basedraw.x + squareSize / 2, this.basedraw.y + squareSize / 2);
+
+    ctx.strokeStyle = 'black';
+    for (var i = 0; i < this.children.length; i++) {
+	ctx.beginPath();
+	ctx.moveTo(this.connectPoint()[0], this.connectPoint()[1]);
+	ctx.lineTo(this.children[i].connectPoint()[0], this.children[i].connectPoint()[1]);
+	ctx.stroke();
+    }
+}
+
+TechElement.prototype.connectPoint = function() {
+    return [this.basedraw.x + squareSize / 2, this.basedraw.y + squareSize / 2];
+}
+
+var TechMode = function() {
+    clearScreen();
+    buttonPress = this.makePressFunction();
+    this.techElements = [];
+    this.generateTechElements();
+    bindHandler.bindFunction(this.getTouchFunction());
+}
+
+TechMode.prototype.generateTechElements = function() {
+    var initial = squareSize;
+    var x = initial;
+    var y = initial;
+    for (var i = 0; i < villainTechTree.length; i++) {
+	this.techElements.push(new TechElement(x, y, villainTechTree[i]));
+	x += 2 * squareSize;
+	if (x >= 480) {
+	    x = initial;
+	    y += 2 * squareSize;
+	}
+    }
+    for (var i = 0; i < this.techElements.length; i++) {
+	var techElement = this.techElements[i];
+	var children = techElement.tech['children'];
+	for (var j = 0; j < children.length; j++) {
+	    for (var k = 0; k < this.techElements.length; k++) {
+		var potentialChild = this.techElements[k];
+		if (potentialChild.tech['id'] === children[j]) {
+		    techElement.children.push(potentialChild);
+		    break;
+		}
+	    }
+	}
+    }
+}
+
+TechMode.prototype.update = function(interval) {
+    var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
+    var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
+    var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
+}
+
+TechMode.prototype.draw = function() {
+    clearScreen();
+    for (var i = 0; i < this.techElements.length; i++) {
+	this.techElements[i].draw();
+    }
+}
+
+TechMode.prototype.makePressFunction = function() {
+    var that = this;
+    return function() {
+	bindHandler.clear();
+	game.currentMode = new SetupLevel();
+    }
+}
+
+TechMode.prototype.getTouchFunction = function() {
+    var that = this;
+    return function(e){
+        var pos = getPos(e);
+        for (var i = 0; i < that.techElements.length; i++){
+            if (containsPos(that.techElements[i].basedraw.getRect(), pos)){
+		var techElement = that.techElements[i];
+		if (currencies['tech'] < techElement.tech['cost']) {
+		    alert('you are too poor. get more tech');
+		    return;
+		}
+		var canResearch = true;
+		for (var j = 0; j < villainTechTree.length; j++) {
+		    for (var k = 0; k < villainTechTree[j]['children'].length; k++) {
+			if (villainTechTree[j]['children'][k] === techElement['tech']['id']) {
+			    if (!game.hasVillainTech(villainTechTree[j]['id'])) {
+				canResearch = false;
+				break;
+			    }
+			}
+		    }
+		    if (!canResearch) {
+			break;
+		    }
+		}
+		if (!canResearch) {
+		    alert('you need to research the prerequisite first');
+		    return;
+		}
+		if (!game.hasVillainTech(techElement.tech['id'])) {
+		    currencies['tech'] -= techElement.tech['cost'];
+		    game.villainTechs.push(techElement.tech['id']);
+		}
+            }
+        }
+    };
+}
+
+var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}}, {'currencies': {'money': 300, 'tech': 3, 'minions': 10}}];
 
 var Game = function() {
     this.currentLevel = 0;
+    this.villainTechs = [];
     this.updateForLevel();
-    this.currentMode = new SetupLevel(this);
+}
+
+Game.prototype.hasVillainTech = function(tech) {
+    for (var i = 0; i < this.villainTechs.length; i++) {
+	if (this.villainTechs[i] === tech) {
+	    return true;
+	}
+    }
+    return false;
 }
 
 Game.prototype.updateForLevel = function() {
@@ -760,7 +1019,11 @@ Game.prototype.updateForLevel = function() {
     levelNumber.innerHTML = this.currentLevel + 1;
     var level = levelSetup[this.currentLevel];
     currencies.money += level['currencies']['money'];
-    currencies.tech += level['currencies']['tech'];
+    if (this.hasVillainTech('research')) {
+	currencies.tech += Math.ceil(level['currencies']['tech'] * 1.5);
+    } else {
+	currencies.tech += level['currencies']['tech'];
+    }	
     currencies.minions += level['currencies']['minions'];
     var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
     var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
@@ -782,7 +1045,8 @@ Game.prototype.draw = function(draw) {
 
 var getFrameFunctions = function(){
     var update = function(){}, draw=function(){};
-    var game = new Game();
+    game = new Game();
+    game.currentMode = new SetupLevel();
     return {
         'update': function(){
             var interval = timeFeed.getInterval();
