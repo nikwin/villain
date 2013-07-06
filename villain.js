@@ -307,6 +307,11 @@ var EmptySpace = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#000000');
 }
 
+var clearScreen = function(){
+    ctx.fillStyle = '#000000'
+    ctx.fillRect(0, 0, 1000, 1000);
+}
+
 var Map = function(){
     this.squares = [];
     this.traps = [];
@@ -323,8 +328,7 @@ var Map = function(){
 };
 
 Map.prototype.draw = function(){
-    ctx.fillStyle = '#000000'
-    ctx.fillRect(0, 0, 1000, 1000);
+    clearScreen();
     for (var i = 0; i < this.squares.length; i++){
         this.squares[i].basedraw.draw();
     }
@@ -357,6 +361,17 @@ Map.prototype.getTouchFunction = function(){
     };
 };
 
+Map.prototype.allThings = function(){
+    var allThings = [];
+    for (var i = 0; i < this.squares.length; i++){
+        allThings.push(this.squares[i]);
+    }
+    for (var i = 0; i < this.traps.length; i++){
+        allThings.push(this.traps[i]);
+    }
+    return allThings;
+}
+
 var allTraps = {
     'one': {
         'color': '#ffff00',
@@ -384,27 +399,86 @@ var getTrap = function() {
     } 
 };
 
-var GameLevel = function(){
+var buttonPress = function(){};
+
+var SetupLevel = function(callback){
     this.map = new Map();
     currencies.money = 1000;
     currencies.tech = 0;
     currencies.minions = 10;
+    this.active = true;
+    buttonPress = this.makePressFunction();
+    this.callback = callback;
 };
 
-GameLevel.prototype.draw = function(){
+SetupLevel.prototype.draw = function(){
     this.map.draw();
-}
+};
 
-GameLevel.prototype.update = function() {
+SetupLevel.prototype.update = function(interval) {
     var currenciesString = document.getElementById('currencies');
     currenciesString.innerHTML = 'money: ' + currencies.money + ' minions: ' + currencies.minions + ' tech: ' + currencies.tech;
 }
 
+SetupLevel.prototype.makePressFunction = function(){
+    var that = this;
+    return function(){
+        that.callback(that.map.allThings());
+    }
+};
+
+var Hero = function(x, y){
+    this.x = x;
+    this.y = y;
+};
+
+Hero.prototype.speed = 20;
+
+Hero.prototype.update = function(interval){
+    if (this.x < 420){
+        this.x = min(this.x + this.speed * interval, 420);
+    }
+    else{
+        this.y = min(this.y + this.speed * interval, 420);
+    }
+};
+
+Hero.prototype.draw = function(){
+    ctx.fillStyle = '#aaaaaa';
+    ctx.fillRect(this.x, this.y, 20, 20);
+}
+
+var GameLevel = function(allThings){
+    this.allThings = allThings;
+    this.hero = new Hero(10, 10);
+};
+
+GameLevel.prototype.draw = function(){
+    for (var i = 0; i < this.allThings.length; i++){
+        this.allThings[i].basedraw.draw();
+    }
+    this.hero.draw();
+};
+
+GameLevel.prototype.update = function(interval){
+    this.hero.update(interval);
+};
+
+
 var getFrameFunctions = function(){
-    var gamelevel = new GameLevel();
+    var update = function(){}, draw=function(){};
+    var gamelevel;
+    var makeGame = function(traps){
+        gamelevel = new GameLevel(traps);
+    }
+    gamelevel = new SetupLevel(makeGame);
+    draw = function(){
+        
+    }
     return {
         'update': function(){
-	    gamelevel.update();
+            var interval = timeFeed.getInterval();
+            gamelevel.update(interval);
         },
         'draw': function(){
             gamelevel.draw();
