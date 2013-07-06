@@ -296,6 +296,18 @@ Trap.prototype.draw = function(){
     ctx.stroke();
 };
 
+var TrapSelector = function() {
+    var traps = document.getElementById("traps").traps;
+    this.selectedTrap = function() {
+	var length = traps.length;
+	for (var i = 0; i < length; i++) {
+	    if (traps[i].checked) {
+		return traps[i].value;
+	    }
+	}
+    } 
+}
+
 var Map = function(){
     this.squares = [];
     this.traps = [];
@@ -334,9 +346,10 @@ Map.prototype.getTouchFunction = function(){
 
 var getFrameFunctions = function(){
     var map = new Map();
+    var trapSelector = new TrapSelector();
     return {
         'update': function(){
-            
+
         },
         'draw': function(){
             map.draw();
