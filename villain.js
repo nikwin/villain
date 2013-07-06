@@ -395,11 +395,16 @@ GameLevel.prototype.draw = function(){
     this.map.draw();
 }
 
+GameLevel.prototype.update = function() {
+    var currenciesString = document.getElementById('currencies');
+    currenciesString.innerHTML = 'money: ' + currencies.money + ' minions: ' + currencies.minions + ' tech: ' + currencies.tech;
+}
+
 var getFrameFunctions = function(){
     var gamelevel = new GameLevel();
     return {
         'update': function(){
-
+	    gamelevel.update();
         },
         'draw': function(){
             gamelevel.draw();
