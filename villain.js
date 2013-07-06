@@ -295,11 +295,13 @@ var Square = function(x, y){
 
 var Trap = function(x, y, props){
     this.basedraw = new BaseDraw(x, y, props['color']);
+    this.name = props['name'];
     this.range = props['range'];
     this.damage = props['damage'];
     this.fireRate = props['fireRate'];
     this.walkable = props['walkable'];
     this.nextFire = 0;
+    this.cost = props['cost'];
 };
 
 Trap.prototype.isInRange = function(x, y) {
@@ -346,6 +348,7 @@ var clearScreen = function(){
 var Map = function(){
     this.squares = [];
     this.traps = [];
+    this.selectedTrap = null;
     for (var x = 0; x < 480; x += squareSize){
         for (var y = 0; y < 480; y += squareSize){
             if ((x != 420 || y != 420) && (x != 0 || y != 0)){
@@ -366,12 +369,35 @@ Map.prototype.draw = function(){
     for (var j = 0; j < this.traps.length; j++){
         this.traps[j].basedraw.draw();
     }
+    var selectedTrap = this.selectedTrap;
+    if (selectedTrap !== null) {
+	ctx.fillStyle = "#ff0000";
+	ctx.fillRect(selectedTrap.basedraw.x, selectedTrap.basedraw.y, selectedTrap.basedraw.size, selectedTrap.basedraw.size);
+    }
 };
 
 Map.prototype.getTouchFunction = function(){
     var that = this;
     return function(e){
         var pos = getPos(e);
+	var selectedTrap = that.selectedTrap;
+	if (selectedTrap !== null) {
+	    if (containsPos(selectedTrap.basedraw.getRect(), pos)) {
+		for (var currency in selectedTrap.cost) {
+		    currencies[currency] += selectedTrap.cost[currency];
+		}
+		var i;
+		for (i = 0; i < that.traps.length; i++) {
+		    if (that.traps[i] === selectedTrap) {
+			break;
+		    }
+		}
+		that.traps.splice(i, 1);
+		that.squares.push(new Square(selectedTrap.basedraw.x, selectedTrap.basedraw.y));
+		that.selectedTrap = null;
+		return;
+	    }
+	}
         for (var i = 0; i < that.squares.length; i++){
             if (containsPos(that.squares[i].basedraw.getRect(), pos)){
 		var trap = getTrap();
@@ -387,8 +413,16 @@ Map.prototype.getTouchFunction = function(){
                 var square = that.squares[i];
                 that.squares.splice(i, 1);
                 that.traps.push(new Trap(square.basedraw.x, square.basedraw.y, getTrap()));
+		that.selectedTrap = that.traps[that.traps.length - 1];
+		return;
             }
         }
+        for (var i = 0; i < that.traps.length; i++){
+            if (containsPos(that.traps[i].basedraw.getRect(), pos)){
+		that.selectedTrap = that.traps[i];
+		return;
+	    }
+	}
     };
 };
 
@@ -405,6 +439,7 @@ Map.prototype.allThings = function(){
 
 var allTraps = {
     'one': {
+	'name': 'One',
         'color': '#ffff00',
 	'cost': {
 	    'money': 10,
@@ -416,6 +451,7 @@ var allTraps = {
 	'walkable': true
     },
     'two': {
+	'name': 'Two',
         'color': '#cccc00',
 	'cost': {
 	    'money': 10,
@@ -457,6 +493,13 @@ SetupLevel.prototype.draw = function(){
 SetupLevel.prototype.update = function(interval) {
     var currenciesString = document.getElementById('currencies');
     currenciesString.innerHTML = 'money: ' + currencies.money + ' minions: ' + currencies.minions + ' tech: ' + currencies.tech;
+    var selectedString = document.getElementById('selected');
+    var selectedTrap = this.map.selectedTrap;
+    if (selectedTrap !== null) {
+	selectedString.innerHTML = selectedTrap.name + ', range: ' + selectedTrap.range + ', damage: ' + selectedTrap.damage + ', fire rate: ' + selectedTrap.fireRate;
+    } else {
+	selectedString.innerHTML = '';
+    }
 }
 
 SetupLevel.prototype.makePressFunction = function(){
