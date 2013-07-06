@@ -317,6 +317,34 @@ Square.prototype.draw = function() {
     }
 }
 
+var Shot = function(x, y, damage){
+    this.basedraw = new BaseDraw(x, y, '#ffffff');
+    this.basedraw.size = 10;
+}
+
+Shot.prototype.speed = 80;
+
+var getSquareDist = function(p1, p2){
+    var x = p1[0] - p2[0];
+    var y = p1[1] - p2[1];
+    return x*x + y*y;
+}
+
+Shot.prototype.update = function(interval, hero){
+    var dist = this.speed * interval;
+    var xRatio = (hero.x - this.basedraw.x) * (hero.x - this.basedraw.x);
+    var yRatio = (hero.y - this.basedraw.y) * (hero.y - this.basedraw.y);
+    var sum = xRatio + yRatio;
+    this.basedraw.x += (xRatio * dist / sum) * ((hero.x  > this.basedraw.x) ? 1 : -1);
+    this.basedraw.y += (yRatio * dist / sum) * ((hero.y  > this.basedraw.y) ? 1 : -1);
+    if (getSquareDist([this.basedraw.x, this.basedraw.y], [hero.x, hero.y]) < 100){
+        hero.health -= this.damage;
+        hero.wasShot = .3;
+        return true;
+    }
+    return false;
+}
+
 var Trap = function(x, y, props){
     this.basedraw = new BaseDraw(x, y, props['color'], props['image']);
     this.name = props['name'];
@@ -329,6 +357,7 @@ var Trap = function(x, y, props){
     this.walkable = props['walkable'];
     this.nextFire = 0;
     this.cost = props['cost'];
+    this.shots = [];
 };
 
 Trap.prototype.isInRange = function(x, y) {
@@ -341,18 +370,85 @@ Trap.prototype.fire = function(hero, time) {
     if (this.nextFire > 0 || !this.isInRange(hero.x, hero.y)) {
 	return;
     }
-    hero.health -= this.damage;
-    hero.wasShot = .3;
     this.nextFire = 1 / this.fireRate;
+    this.shots.push(new Shot(this.basedraw.x, this.basedraw.y, this.damage));
 }
 
 Trap.prototype.update = function(interval, hero) {
     this.fire(hero, interval);
+    for (var i = this.shots.length - 1; i >= 0; i--){
+        if (this.shots[i].update(interval, hero)){
+            this.shots.splice(i, 1);
+        }
+    }
 }
 
 Trap.prototype.draw = function() {
     this.basedraw.draw();
-    ctx.fillText(this.nextFire, this.basedraw.x, this.basedraw.y);
+    for (var i = 0; i < this.shots.length; i++){
+        this.shots[i].basedraw.draw();
+    }
+}
+
+var Punch = function(x, y, damage){
+    this.basedraw = new BaseDraw(x, y, '#ff0000');
+    this.basedraw.size = 20;
+    this.damage = damage;
+};
+
+Punch.prototype.speed = 400;
+
+Punch.prototype.update = function(interval, hero){
+    var dist = this.speed * interval;
+    var xRatio = (hero.x - this.basedraw.x) * (hero.x - this.basedraw.x);
+    var yRatio = (hero.y - this.basedraw.y) * (hero.y - this.basedraw.y);
+    var sum = xRatio + yRatio;
+    var vel = [(xRatio * dist / sum) * ((hero.x  > this.basedraw.x) ? 1 : -1),
+               (yRatio * dist / sum) * ((hero.y  > this.basedraw.y) ? 1 : -1)];
+    this.basedraw.x += vel[0];
+    this.basedraw.y += vel[1];
+    if (getSquareDist([this.basedraw.x, this.basedraw.y], [hero.x, hero.y]) < 100){
+        hero.health -= this.damage;
+        hero.forcedVelocity = [vel[0] / interval, vel[1] / interval];
+        return true;
+    }
+    return false;
+};
+
+
+var PunchTrap = function(x, y, props){
+    this.basedraw = new BaseDraw(x, y, props['color'], props['image']);
+    for (var key in props){
+        this[key] = props[key];
+    }
+    this.nextFire = 0;
+    this.animating = 0;
+    this.punch = null;
+}
+
+PunchTrap.prototype.isInRange = Trap.prototype.isInRange;
+
+PunchTrap.prototype.update = function(interval, hero){
+    this.nextFire = max(this.nextFire - interval, 0);
+    if (this.nextFire <= 0 && this.isInRange(hero.x, hero.y)) {
+	if (!this.punch){
+            this.punch = new Punch(this.basedraw.x, this.basedraw.y, this.damage);
+        }
+    }
+    if (this.punch && this.punch.update(interval, hero)){
+        this.punch = null;
+    }
+};
+
+PunchTrap.prototype.draw = function() {
+    this.basedraw.draw();
+    if (this.punch){
+        this.punch.basedraw.draw();
+    }
+};
+
+var makeTrap = function(x, y, props){
+    return new props.fn(x, y, props);
 }
 
 var Villain = function(x, y){
@@ -450,7 +546,7 @@ Map.prototype.getTouchFunction = function(){
 		}
                 var square = that.squares[i];
                 that.squares.splice(i, 1);
-                that.traps.push(new Trap(square.basedraw.x, square.basedraw.y, getTrap()));
+                that.traps.push(makeTrap(square.basedraw.x, square.basedraw.y, getTrap()));
 		that.selectedTrap = that.traps[that.traps.length - 1];
 		return;
             }
@@ -487,7 +583,8 @@ var allTraps = {
 	'range': 0,
 	'damage': 0,
 	'fireRate': 0,
-	'walkable': false
+	'walkable': false,
+        'fn': Trap
     },
     'turret': {
 	'name': 'Turret',
@@ -497,10 +594,25 @@ var allTraps = {
 	    'minions': 1
 	},
 	'range': 3 * squareSize,
-	'damage': 2,
+	'damage': 5,
 	'fireRate': 2,
-	'walkable': false
+	'walkable': false,
+        'fn': Trap
+    },
+    'punch': {
+        'name': 'Punchy',
+        'color': '#aaaaaa',
+        'cost': {
+            'money': 10,
+            'minions': 1
+        },
+        'range': 2 * squareSize,
+        'damage': 2,
+        'fireRate': 2,
+        'walkable': false,
+        'fn': PunchTrap
     }
+    
 }
 
 var getTrap = function() {
@@ -550,7 +662,7 @@ SetupLevel.prototype.makePressFunction = function() {
 var Hero = function(x, y){
     this.x = x;
     this.y = y;
-    this.health = 1000;
+    this.health = 100;
     this.currentDirection = 0;
     this.directions = [[1,0],
                        [0,1],
@@ -559,14 +671,15 @@ var Hero = function(x, y){
     this.walkingBlock = undefined;
     this.blocksTouching = [];
     this.wasShot = false;
+    this.forcedVelocity = [0, 0];
 };
 
 Hero.prototype.speed = 120;
 
 Hero.prototype.update = function(interval, allThings){
     this.wasShot -= interval;
-    var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval;
-    var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval;
+    var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval + this.forcedVelocity[0] * interval;
+    var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval + this.forcedVelocity[1] * interval;
     var canMove = true;
 
     if (newX > 540 || newY > 540 || newX < 0 || newY < 0){
@@ -610,8 +723,13 @@ Hero.prototype.update = function(interval, allThings){
         this.x = newX;
         this.y = newY;
         this.blocksTouching = blocksTouching;
+        this.forcedVelocity = [this.forcedVelocity[0] / 2, this.forcedVelocity[1] / 2];
+        if (this.forcedVelocity[0] < 4 && this.forcedVelocity[1] < 4){
+            this.forcedVelocity = [0, 0];
+        }
     }
     else{
+        this.forcedVelocity = [0, 0];
         this.currentDirection = undefined;
         for (var i = 0; i < this.directions.length && this.currentDirection == undefined; i++){
             var blockPos = this.snapSquare(this.directions[i]);
@@ -654,11 +772,11 @@ Hero.prototype.snapSquare = function(direction){
     var basey = Math.floor(this.y / squareSize) * squareSize + squareSize / 2;
     return [basex + direction[0] * squareSize,
             basey + direction[1] * squareSize];
-}
+};
 
 Hero.prototype.getRect = function(pos){
     return [pos[0], pos[1], 20, 20];
-}
+};
 
 var heroImage = new Image(); heroImage.src = 'images/hero.png';
 var heroPattern = ctx.createPattern(heroImage,'no-repeat');
