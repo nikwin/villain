@@ -339,6 +339,16 @@ Map.prototype.getTouchFunction = function(){
         var pos = getPos(e);
         for (var i = 0; i < that.squares.length; i++){
             if (containsPos(that.squares[i].basedraw.getRect(), pos)){
+		var trap = getTrap();
+		for (var currency in trap['cost']) {
+		    if (currencies[currency] < trap['cost'][currency]) {
+			alert('you are too poor. get more ' + currency);
+			return;
+		    }
+		}
+		for (var currency in trap['cost']) {
+		    currencies[currency] -= trap['cost'][currency];
+		}
                 var square = that.squares[i];
                 that.squares.splice(i, 1);
                 that.traps.push(new Trap(square.basedraw.x, square.basedraw.y, getTrap()));
@@ -349,10 +359,18 @@ Map.prototype.getTouchFunction = function(){
 
 var allTraps = {
     'one': {
-        'color': '#ffff00'
+        'color': '#ffff00',
+	'cost': {
+	    'money': 10,
+	    'minions': 1
+	}
     },
     'two': {
-        'color': '#cccc00'
+        'color': '#cccc00',
+	'cost': {
+	    'money': 10,
+	    'minions': 1
+	}
     }
 }
 
@@ -368,6 +386,9 @@ var getTrap = function() {
 
 var GameLevel = function(){
     this.map = new Map();
+    currencies.money = 1000;
+    currencies.tech = 0;
+    currencies.minions = 10;
 };
 
 GameLevel.prototype.draw = function(){
