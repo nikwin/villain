@@ -478,7 +478,7 @@ var allTraps = {
 	    'minions': 1
 	},
 	'range': 3 * squareSize,
-	'damage': 1,
+	'damage': 2,
 	'fireRate': 2,
 	'walkable': false
     }
@@ -499,9 +499,6 @@ var buttonPress = function(){};
 var SetupLevel = function(game) {
     this.game = game;
     this.map = new Map();
-    currencies.money = 1000;
-    currencies.tech = 0;
-    currencies.minions = 10;
     this.active = true;
     buttonPress = this.makePressFunction();
 };
@@ -639,18 +636,16 @@ var GameLevel = function(game, map) {
     this.villain = map.villain;
 };
 
-GameLevel.prototype.changeModeForLevelEnd = function() {
-	this.game.currentMode = new BetweenLevels(this.game);
+GameLevel.prototype.changeModeForLevelEnd = function(victory) {
+    this.game.currentMode = new BetweenLevels(this.game, victory);
 }
 
 GameLevel.prototype.checkLevelEnded = function() {
     if (containsPos(this.villain.basedraw.getRect(), [this.hero.x + 10, this.hero.y + 10])) {
-	alert('hero got to villain');
-	this.changeModeForLevelEnd();
+	this.changeModeForLevelEnd(true);
     }
     if (this.hero.health <= 0) {
-	alert('hero died');
-	this.changeModeForLevelEnd();
+	this.changeModeForLevelEnd(false);
     }
 }
 
@@ -675,10 +670,25 @@ GameLevel.prototype.update = function(interval){
     this.checkLevelEnded();
 };
 
-var BetweenLevels = function(game) {
+var BetweenLevels = function(game, victory) {
     this.game = game;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    this.game.incrementLevel();
+    this.drawScreen(victory);
     buttonPress = this.makePressFunction();
+}
+
+BetweenLevels.prototype.drawScreen = function(victory) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '20pt Arial';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'black';
+    var text;
+    if (victory) {
+	text = 'The hero got to you but you escaped! Huzzah!';
+    } else {
+	text = 'You killed the hero. Your life is now meaningless.';
+    }
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
 
 BetweenLevels.prototype.update = function(interval) {
@@ -694,8 +704,29 @@ BetweenLevels.prototype.makePressFunction = function() {
     }
 }
 
+var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}}, {'currencies': {'money': 300, 'tech': 0, 'minions': 10}}];
+
 var Game = function() {
+    this.currentLevel = 0;
+    this.updateForLevel();
     this.currentMode = new SetupLevel(this);
+}
+
+Game.prototype.updateForLevel = function() {
+    var levelNumber = document.getElementById('levelNumber');
+    levelNumber.innerHTML = this.currentLevel + 1;
+    var level = levelSetup[this.currentLevel];
+    currencies.money += level['currencies']['money'];
+    currencies.tech += level['currencies']['tech'];
+    currencies.minions += level['currencies']['minions'];
+    var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
+    var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
+    var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
+}
+
+Game.prototype.incrementLevel = function() {
+    this.currentLevel = min(levelSetup.length - 1, this.currentLevel + 1);
+    this.updateForLevel();
 }
 
 Game.prototype.update = function(interval) {
