@@ -322,7 +322,7 @@ var Shot = function(x, y, damage){
     this.basedraw.size = 10;
 }
 
-Shot.prototype.speed = 80;
+Shot.prototype.speed = 300;
 
 var getSquareDist = function(p1, p2){
     var x = p1[0] - p2[0];
