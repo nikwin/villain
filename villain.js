@@ -252,6 +252,14 @@ var overlapArea = function(rct1, rct2){
 
 var squareSize = 60;
 
+var Currencies = function() {
+    this.money = 0;
+    this.minions = 0;
+    this.tech = 0;
+}
+
+var currencies = new Currencies();
+
 var BaseDraw = function(x, y, color){
     this.x = x;
     this.y = y;
