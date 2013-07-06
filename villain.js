@@ -250,7 +250,40 @@ var overlapArea = function(rct1, rct2){
     return (right - left) * (bottom - top);
 }
 
+var Square = function(x, y){
+    this.x = x;
+    this.y = y;
+};
+
+Square.prototype.size = 60;
+
+Square.prototype.draw = function(){
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(this.x, this.y, this.size, this.size);
+    ctx.strokeStyle = "#ff0000";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(this.x, this.y + this.size);
+    ctx.lineTo(this.x + this.size, this.y + this.size);
+    ctx.lineTo(this.x + this.size, this.y);
+    ctx.closePath();
+    ctx.stroke();
+}
+
 var Map = function(){
+    this.squares = [];
+    for (var x = 0; x < 480; x += Square.prototype.size){
+        for (var y = 0; y < 480; y += Square.prototype.size){
+            this.squares.push(new Square(x, y));
+        }
+    }
+};
+
+Map.prototype.draw = function(){
+    for (var i = 0; i < this.squares.length; i++){
+        this.squares[i].draw();
+    }
 }
 
 var getFrameFunctions = function(){
@@ -260,7 +293,7 @@ var getFrameFunctions = function(){
             
         },
         'draw': function(){
-            
+            map.draw();
         }
     }
 };
