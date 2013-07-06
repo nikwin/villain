@@ -288,7 +288,7 @@ BaseDraw.prototype.getRect = function(){
 
 
 var Square = function(x, y){
-    this.basedraw = new BaseDraw(x, y, '#ffffff');
+    this.basedraw = new BaseDraw(x, y, '#663300');
 };
 
 var Trap = function(x, y, props){
@@ -299,16 +299,25 @@ var Villain = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#00ff00');
 }
 
+var HeroStart = function(x, y){
+    this.basedraw = new BaseDraw(x, y, '#ffffff');
+}
+
+var EmptySpace = function(x, y){
+    this.basedraw = new BaseDraw(x, y, '#000000');
+}
+
 var Map = function(){
     this.squares = [];
     this.traps = [];
     for (var x = 0; x < 480; x += squareSize){
         for (var y = 0; y < 480; y += squareSize){
-            if (x != 420 || y != 420){
+            if ((x != 420 || y != 420) && (x != 0 || y != 0)){
                 this.squares.push(new Square(x, y));
             }
         }
     }
+    this.traps.push(new HeroStart(0, 0));
     this.traps.push(new Villain(420, 420));
     bindHandler.bindFunction(this.getTouchFunction())
 };
