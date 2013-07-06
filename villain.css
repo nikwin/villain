@@ -1,0 +1,6 @@
+/* Because I like separate files, dammit */
+
+#canvas {
+    text-align: center;
+    border: 5px ridge #663300;
+}
