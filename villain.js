@@ -340,6 +340,7 @@ Trap.prototype.fire = function(hero, time) {
 	return;
     }
     hero.health -= this.damage;
+    hero.wasShot = .3;
     this.nextFire = 1 / this.fireRate;
 }
 
@@ -554,11 +555,13 @@ var Hero = function(x, y){
                        [0, -1]];
     this.walkingBlock = undefined;
     this.blocksTouching = [];
+    this.wasShot = false;
 };
 
 Hero.prototype.speed = 60;
 
 Hero.prototype.update = function(interval, allThings){
+    this.wasShot -= interval;
     var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval;
     var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval;
     var canMove = true;
@@ -662,6 +665,11 @@ Hero.prototype.draw = function(){
     ctx.drawImage(heroImage,this.x,this.y,20,20);
     var heroString = document.getElementById('hero');
     heroString.innerHTML = 'health: ' + this.health;
+    console.log('draw');
+    if (this.wasShot > 0){
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
+    }
 };
 
 var GameLevel = function(game, map) {
@@ -696,12 +704,12 @@ GameLevel.prototype.draw = function(){
 };
 
 GameLevel.prototype.update = function(interval){
+    this.hero.update(interval, this.allThings);
     for (var i = 0; i < this.allThings.length; i++){
 	if (typeof this.allThings[i].update !== 'undefined') {
 	    this.allThings[i].update(interval, this.hero);
 	}
     }
-    this.hero.update(interval, this.allThings);
     this.checkLevelEnded();
 };
 
