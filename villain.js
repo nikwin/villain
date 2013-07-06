@@ -293,7 +293,35 @@ var Square = function(x, y){
 
 var Trap = function(x, y, props){
     this.basedraw = new BaseDraw(x, y, props['color']);
+    this.range = props['range'];
+    this.damage = props['damage'];
+    this.fireRate = props['fireRate'];
+    this.walkable = props['walkable'];
+    this.nextFire = 0;
 };
+
+Trap.prototype.isInRange = function(x, y) {
+    var distanceSq = (x - this.basedraw.x) * (x - this.basedraw.x) + (y - this.basedraw.y) * (y - this.basedraw.y);
+    return distanceSq < this.range * this.range;
+}
+
+Trap.prototype.fire = function(hero, time) {
+    this.nextFire = max(this.nextFire - time, 0);
+    if (this.nextFire > 0 || !this.isInRange(hero.x, hero.y)) {
+	return;
+    }
+    hero.health -= this.damage;
+    this.nextFire = 1 / this.fireRate;
+}
+
+Trap.prototype.update = function(interval, hero) {
+    this.fire(hero, interval);
+}
+
+Trap.prototype.draw = function() {
+    this.basedraw.draw();
+    ctx.fillText(this.nextFire, this.basedraw.x, this.basedraw.y);
+}
 
 var Villain = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#00ff00');
@@ -378,14 +406,22 @@ var allTraps = {
 	'cost': {
 	    'money': 10,
 	    'minions': 1
-	}
+	},
+	'range': 3 * squareSize,
+	'damage': 1,
+	'fireRate': 1,
+	'walkable': true
     },
     'two': {
         'color': '#cccc00',
 	'cost': {
 	    'money': 10,
 	    'minions': 1
-	}
+	},
+	'range': 3 * squareSize,
+	'damage': 1,
+	'fireRate': 2,
+	'walkable': false
     }
 }
 
@@ -430,6 +466,7 @@ SetupLevel.prototype.makePressFunction = function(){
 var Hero = function(x, y){
     this.x = x;
     this.y = y;
+    this.health = 1000;
 };
 
 Hero.prototype.speed = 20;
@@ -446,6 +483,8 @@ Hero.prototype.update = function(interval){
 Hero.prototype.draw = function(){
     ctx.fillStyle = '#aaaaaa';
     ctx.fillRect(this.x, this.y, 20, 20);
+    var heroString = document.getElementById('hero');
+    heroString.innerHTML = 'health: ' + this.health;
 }
 
 var GameLevel = function(allThings){
@@ -455,13 +494,22 @@ var GameLevel = function(allThings){
 
 GameLevel.prototype.draw = function(){
     for (var i = 0; i < this.allThings.length; i++){
-        this.allThings[i].basedraw.draw();
+	if (typeof this.allThings[i].draw !== 'undefined') {
+	    this.allThings[i].draw();
+	} else {
+            this.allThings[i].basedraw.draw();
+	}
     }
     this.hero.draw();
 };
 
 GameLevel.prototype.update = function(interval){
     this.hero.update(interval);
+    for (var i = 0; i < this.allThings.length; i++){
+	if (typeof this.allThings[i].update !== 'undefined') {
+	    this.allThings[i].update(interval, this.hero);
+	}
+    }
 };
 
 
