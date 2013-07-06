@@ -303,12 +303,19 @@ var Square = function(x, y){
 };
 
 var bgImage = new Image();
+bgImage.src = 'images/tileBG.png';
 
 Square.prototype.draw = function() {
     this.basedraw.draw(ctx.createPattern(bgImage, "repeat"), "#CCCCCC");
+    if (this.hasBeenWalkedUpon){
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(this.basedraw.x, this.basedraw.y, this.basedraw.size, this.basedraw.size);
+        ctx.globalAlpha = 1;
+    }
 }
 
-bgImage.src = 'images/tileBG.png';
+
 
 
 var Trap = function(x, y, props){
@@ -570,8 +577,8 @@ Hero.prototype.update = function(interval, allThings){
             }
             else{
                 var shouldSkip = false;
-                for (var j = 0; j < blocksTouching.length; j++){
-                    if (allThings[i] == blocksTouching[j]){
+                for (var j = 0; j < this.blocksTouching.length; j++){
+                    if (allThings[i] == this.blocksTouching[j]){
                         shouldSkip = true;
                         break;
                     }
