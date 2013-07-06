@@ -250,38 +250,19 @@ var overlapArea = function(rct1, rct2){
     return (right - left) * (bottom - top);
 }
 
-var getFrameFunctions = function(){
-    var table = new Table();
-    var spellList = new MoveAndScoreView();
-    var select = null;
-    var selectFunction = function(selected){
-        table = new Table();
-        spellList = new SpellList(table, selected);
-        select = null;
-    }
-    
-    //select = new SpellSelect(selectFunction);
+var Map = function(){
+}
 
+var getFrameFunctions = function(){
+    var map = new Map();
     return {
-         draw: function(){
-             if (select){
-                 select.draw();
-             }
-             else{
-                 table.draw();
-                 spellList.draw();
-             }
+        'update': function(){
+            
         },
-        update: function(){
-            var interval = timeFeed.getInterval();
-            if (select){
-            }
-            else{
-                table.update(interval);
-                spellList.update();
-            }
+        'draw': function(){
+            
         }
-    };
+    }
 };
 
 var main = function(){
