@@ -365,7 +365,8 @@ var Map = function(){
         }
     }
     this.traps.push(new HeroStart(0, 0));
-    this.traps.push(new Villain(420, 420));
+    this.villain = new Villain(420, 420);
+    this.traps.push(this.villain);
     bindHandler.bindFunction(this.getTouchFunction())
 };
 
@@ -454,7 +455,7 @@ var allTraps = {
 	    'minions': 1
 	},
 	'range': 3 * squareSize,
-	'damage': 1,
+	'damage': 10,
 	'fireRate': 1,
 	'walkable': true
     },
@@ -484,14 +485,14 @@ var getTrap = function() {
 
 var buttonPress = function(){};
 
-var SetupLevel = function(callback){
+var SetupLevel = function(game) {
+    this.game = game;
     this.map = new Map();
     currencies.money = 1000;
     currencies.tech = 0;
     currencies.minions = 10;
     this.active = true;
     buttonPress = this.makePressFunction();
-    this.callback = callback;
 };
 
 SetupLevel.prototype.draw = function(){
@@ -510,10 +511,10 @@ SetupLevel.prototype.update = function(interval) {
     }
 }
 
-SetupLevel.prototype.makePressFunction = function(){
+SetupLevel.prototype.makePressFunction = function() {
     var that = this;
     return function(){
-        that.callback(that.map.allThings());
+	that.game.currentMode = new GameLevel(that.game, that.map);
     }
 };
 
@@ -623,14 +624,27 @@ Hero.prototype.draw = function(){
     heroString.innerHTML = 'health: ' + this.health;
 };
 
-Hero.prototype.getRect = function(x, y){
-    return [x, y, 20, 20];
+var GameLevel = function(game, map) {
+    this.game = game;
+    this.allThings = map.allThings();
+    this.hero = new Hero(10, 10);
+    this.villain = map.villain;
+};
+
+GameLevel.prototype.changeModeForLevelEnd = function() {
+	this.game.currentMode = new BetweenLevels(this.game);
 }
 
-var GameLevel = function(allThings){
-    this.allThings = allThings;
-    this.hero = new Hero(10, 10);
-};
+GameLevel.prototype.checkLevelEnded = function() {
+    if (containsPos(this.villain.basedraw.getRect(), [this.hero.x + 10, this.hero.y + 10])) {
+	alert('hero got to villain');
+	this.changeModeForLevelEnd();
+    }
+    if (this.hero.health <= 0) {
+	alert('hero died');
+	this.changeModeForLevelEnd();
+    }
+}
 
 GameLevel.prototype.draw = function(){
     for (var i = 0; i < this.allThings.length; i++){
@@ -650,26 +664,50 @@ GameLevel.prototype.update = function(interval){
 	}
     }
     this.hero.update(interval, this.allThings);
+    this.checkLevelEnded();
 };
 
+var BetweenLevels = function(game) {
+    this.game = game;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    buttonPress = this.makePressFunction();
+}
+
+BetweenLevels.prototype.update = function(interval) {
+}
+
+BetweenLevels.prototype.draw = function() {
+}
+
+BetweenLevels.prototype.makePressFunction = function() {
+    var that = this;
+    return function() {
+	that.game.currentMode = new SetupLevel(that.game);
+    }
+}
+
+var Game = function() {
+    this.currentMode = new SetupLevel(this);
+}
+
+Game.prototype.update = function(interval) {
+    this.currentMode.update(interval);
+}
+
+Game.prototype.draw = function(draw) {
+    this.currentMode.draw();
+}
 
 var getFrameFunctions = function(){
     var update = function(){}, draw=function(){};
-    var gamelevel;
-    var makeGame = function(traps){
-        gamelevel = new GameLevel(traps);
-    }
-    gamelevel = new SetupLevel(makeGame);
-    draw = function(){
-        
-    }
+    var game = new Game();
     return {
         'update': function(){
             var interval = timeFeed.getInterval();
-            gamelevel.update(interval);
+            game.update(interval);
         },
         'draw': function(){
-            gamelevel.draw();
+            game.draw();
         }
     }
 };
