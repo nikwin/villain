@@ -283,8 +283,8 @@ var Square = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#ffffff');
 };
 
-var Trap = function(x, y){
-    this.basedraw = new BaseDraw(x, y, '#0000ff');
+var Trap = function(x, y, props){
+    this.basedraw = new BaseDraw(x, y, props['color']);
 };
 
 var Villain = function(x, y){
@@ -324,33 +324,47 @@ Map.prototype.getTouchFunction = function(){
             if (containsPos(that.squares[i].basedraw.getRect(), pos)){
                 var square = that.squares[i];
                 that.squares.splice(i, 1);
-                that.traps.push(new Trap(square.basedraw.x, square.basedraw.y));
+                that.traps.push(new Trap(square.basedraw.x, square.basedraw.y, getTrap()));
             }
         }
     };
 };
 
-var TrapSelector = function() {
+var allTraps = {
+    'one': {
+        'color': '#ffff00'
+    },
+    'two': {
+        'color': '#cccc00'
+    }
+}
+
+var getTrap = function() {
     var traps = document.getElementById("traps").traps;
-    this.selectedTrap = function() {
-	var length = traps.length;
-	for (var i = 0; i < length; i++) {
-	    if (traps[i].checked) {
-		return traps[i].value;
-	    }
+    var length = traps.length;
+    for (var i = 0; i < length; i++) {
+	if (traps[i].checked) {
+	    return allTraps[traps[i].value];
 	}
     } 
 };
 
+var GameLevel = function(){
+    this.map = new Map();
+};
+
+GameLevel.prototype.draw = function(){
+    this.map.draw();
+}
+
 var getFrameFunctions = function(){
-    var map = new Map();
-    var trapSelector = new TrapSelector();
+    var gamelevel = new GameLevel();
     return {
         'update': function(){
 
         },
         'draw': function(){
-            map.draw();
+            gamelevel.draw();
         }
     }
 };
