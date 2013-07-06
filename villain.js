@@ -288,7 +288,9 @@ BaseDraw.prototype.getRect = function(){
 
 
 var Square = function(x, y){
-    this.basedraw = new BaseDraw(x, y, '#663300');
+    var canWalk = randomChoice([true, false]);
+    this.basedraw = new BaseDraw(x, y, canWalk ? '#663300' : '0000aa');
+    this.walkable = function(){return canWalk};
 };
 
 var Trap = function(x, y, props){
@@ -325,15 +327,16 @@ Trap.prototype.draw = function() {
 
 var Villain = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#00ff00');
-}
+};
 
 var HeroStart = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#ffffff');
-}
+    this.walkable = function(){return true;};
+};
 
 var EmptySpace = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#000000');
-}
+};
 
 var clearScreen = function(){
     ctx.fillStyle = '#000000'
@@ -467,16 +470,91 @@ var Hero = function(x, y){
     this.x = x;
     this.y = y;
     this.health = 1000;
+    this.currentDirection = 0;
+    this.directions = [[1,0],
+                       [0,1],
+                       [-1, 0],
+                       [0, -1]];
+    this.walkingBlock = undefined;
+    this.blocksNotWalked = [];
 };
 
-Hero.prototype.speed = 20;
+Hero.prototype.speed = 60;
 
-Hero.prototype.update = function(interval){
-    if (this.x < 420){
-        this.x = min(this.x + this.speed * interval, 420);
+Hero.prototype.update = function(interval, allThings){
+    var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval;
+    var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval;
+    var canMove = true;
+
+    if (newX > 600 || newY > 480 || newX < 0 || newY < 0){
+        canMove = false;
+    }
+    
+    for (var i = 0; i < allThings.length; i++){
+        if (containsPos(allThings[i].basedraw.getRect(), [newX, newY])){
+            if (!allThings[i].walkable()){
+                canMove = false;
+                break;
+            }
+            else if (this.walkingBlock != allThings[i]){
+                if (allThings[i].hasBeenWalkedUpon){
+                    canMove = false;
+                }
+                else{
+                    this.walkingBlock = allThings[i];
+                    this.walkingBlock.hasBeenWalkedUpon = true;
+                    this.walkingBlock.basedraw.color = '#aa0000'
+                }
+            }
+        }
+    }
+
+    if (canMove){
+        this.x = newX;
+        this.y = newY;
     }
     else{
-        this.y = min(this.y + this.speed * interval, 420);
+        this.currentDirection = undefined;
+        for (var i = 0; i < this.directions.length; i++){
+            var blockPos = [this.x + this.directions[i][0] * squareSize,
+                            this.y + this.directions[i][1] * squareSize];
+            for (var j = 0; j < allThings.length; j++){
+                if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
+                    if (allThings[j].walkable() && ! allThings[j].hasBeenWalkedUpon){
+                        this.currentDirection = i;
+                        break;
+                    }
+                }
+            }
+        }
+        if (this.currentDirection == undefined){
+            for (var i = 0; i < this.directions.length; i++){
+                var blockPos = [this.x + this.directions[i][0] * squareSize,
+                                this.y + this.directions[i][1] * squareSize];
+                for (var j = 0; j < allThings.length; j++){
+                    if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
+                        if (!allThings[j].hasBeenWalkedUpon){
+                            this.currentDirection = i;
+                            allThings[j].walkable = function(){return true;};
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (this.currentDirection == undefined){
+            for (var i = 0; i < this.directions.length; i++){
+                var blockPos = [this.x + this.directions[i][0] * squareSize,
+                                this.y + this.directions[i][1] * squareSize];
+                for (var j = 0; j < allThings.length; j++){
+                    allThings[j].hasBeenWalkedUpon = false;
+                    if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
+                        this.currentDirection = i;
+                        allThings[j].walkable = function(){return true;};
+                    }
+                }
+            }
+        }
     }
 };
 
@@ -485,6 +563,10 @@ Hero.prototype.draw = function(){
     ctx.fillRect(this.x, this.y, 20, 20);
     var heroString = document.getElementById('hero');
     heroString.innerHTML = 'health: ' + this.health;
+};
+
+Hero.prototype.getRect = function(x, y){
+    return [x, y, 20, 20];
 }
 
 var GameLevel = function(allThings){
@@ -504,12 +586,12 @@ GameLevel.prototype.draw = function(){
 };
 
 GameLevel.prototype.update = function(interval){
-    this.hero.update(interval);
     for (var i = 0; i < this.allThings.length; i++){
 	if (typeof this.allThings[i].update !== 'undefined') {
 	    this.allThings[i].update(interval, this.hero);
 	}
     }
+    this.hero.update(interval, this.allThings);
 };
 
 
