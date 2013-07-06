@@ -288,9 +288,8 @@ BaseDraw.prototype.getRect = function(){
 
 
 var Square = function(x, y){
-    var canWalk = randomChoice([true, false]);
-    this.basedraw = new BaseDraw(x, y, canWalk ? '#663300' : '0000aa');
-    this.walkable = function(){return canWalk};
+    this.basedraw = new BaseDraw(x, y, '#663300');
+    this.walkable = true;
 };
 
 var Trap = function(x, y, props){
@@ -333,7 +332,7 @@ var Villain = function(x, y){
 
 var HeroStart = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#ffffff');
-    this.walkable = function(){return true;};
+    this.walkable = true;
 };
 
 var EmptySpace = function(x, y){
@@ -529,13 +528,13 @@ Hero.prototype.update = function(interval, allThings){
     var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval;
     var canMove = true;
 
-    if (newX > 600 || newY > 480 || newX < 0 || newY < 0){
+    if (newX > 480 || newY > 480 || newX < 0 || newY < 0){
         canMove = false;
     }
     
     for (var i = 0; i < allThings.length; i++){
         if (containsPos(allThings[i].basedraw.getRect(), [newX, newY])){
-            if (!allThings[i].walkable()){
+            if (!allThings[i].walkable){
                 canMove = false;
                 break;
             }
@@ -563,7 +562,7 @@ Hero.prototype.update = function(interval, allThings){
                             this.y + this.directions[i][1] * squareSize];
             for (var j = 0; j < allThings.length; j++){
                 if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
-                    if (allThings[j].walkable() && ! allThings[j].hasBeenWalkedUpon){
+                    if (allThings[j].walkable && ! allThings[j].hasBeenWalkedUpon){
                         this.currentDirection = i;
                         break;
                     }
@@ -578,7 +577,7 @@ Hero.prototype.update = function(interval, allThings){
                     if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
                         if (!allThings[j].hasBeenWalkedUpon){
                             this.currentDirection = i;
-                            allThings[j].walkable = function(){return true;};
+                            allThings[j].walkable = true;
                             break;
                         }
                     }
@@ -593,7 +592,7 @@ Hero.prototype.update = function(interval, allThings){
                     allThings[j].hasBeenWalkedUpon = false;
                     if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
                         this.currentDirection = i;
-                        allThings[j].walkable = function(){return true;};
+                        allThings[j].walkable = true;
                     }
                 }
             }
