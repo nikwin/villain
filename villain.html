@@ -6,7 +6,7 @@
 	    <link rel="stylesheet" href="villain.css" type="text/css" media="screen">
     </head>
     <body>
-      <game>
+      <div id="game">
         <div id = "HUD">
             <span id = "level">
                 <span id = "levelIcon">Round</span>
@@ -28,11 +28,15 @@
         <p id="hero"></p>
         <p id="selected"></p>
         <canvas id="canvas" width="540" height="540" align="center"></canvas>
-        <form id="traps">
-            <input type="radio" name="traps" value="lava pit" checked>Lava Pit</input><br>
-            <input type="radio" name="traps" value="turret">Turret</input>
-        </form>
-      </game>
+        <div id="trapWindow">
+            <form id="traps">
+                <input type="radio" id="trap1" name="traps" value="lava pit" checked/ >
+                    <label for="trap1">Lava Pit</label>
+                <input type="radio" id="trap2" name="traps" value="turret" />
+                    <label for="trap2">Turret</label>
+            </form>
+        </div>
+      </div>
       <input onclick="buttonPress()" type="button" value="Press" id="myButton1"></input>
       <div id="results"></div>
       <div class="tooltip">

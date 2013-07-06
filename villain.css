@@ -5,6 +5,48 @@
     border: 5px ridge #663300;
 }
 
+#game {
+    width:690px;
+}
+
+.tooltip{
+    color: #34495E;
+    width: 200px;
+    line-height: 1.4;
+    margin-top: 3px;
+    padding: 5px 0px;
+    padding-bottom: 8px;
+    display:block;
+    position: relative !important;
+    font-size: 14px;
+    opacity: 1;
+    visibility:hidden;
+}
+
+.tooltip .tooltip-arrow {
+    border-width: 0px 9px 9px;
+    margin-left: -9px;
+    top: -1px;
+    left: 50%;
+    border-color: transparent;
+    border-bottom-color: #34495E;
+    border-style: solid;
+    width: 0px; height: 0px;
+    position:absolute;
+}
+
+.tooltip .tooltip-inner{
+    background-color: #34495E;
+    border-radius: 6px 6px 6px 6px;
+    width: 183px;
+    text-align: center;
+    line-height: 18px;
+    max-width: 200px;
+    color: #FFFFFF;
+    padding: 12px;
+
+}
+
 #HUD {
     width: 540px;
     background-color: rgb(160, 3, 2);
@@ -55,40 +97,39 @@ img.HUDIcon {
     padding-right: 25px;
 }
 
-.tooltip{
-    color: #34495E;
-    width: 200px;
-    line-height: 1.4;
-    margin-top: 3px;
-    padding: 5px 0px;
-    padding-bottom: 8px;
-    display:block;
-    position: relative !important;
-    font-size: 14px;
-    opacity: 1;
-    visibility:hidden;
-}
-
-.tooltip .tooltip-arrow {
-    border-width: 0px 9px 9px;
-    margin-left: -9px;
-    top: -1px;
-    left: 50%;
-    border-color: transparent;
-    border-bottom-color: #34495E;
-    border-style: solid;
-    width: 0px; height: 0px;
-    position:absolute;
-}
-
-.tooltip .tooltip-inner{
-    background-color: #34495E;
-    border-radius: 6px 6px 6px 6px;
-    width: 183px;
-    text-align: center;
-    line-height: 18px;
-    max-width: 200px;
+#trapWindow {
+    height:540px;
+    width:130px;
+    background-color: #a10504;
+    float:right;
+    border: 5px ridge #663300;
     color: #FFFFFF;
-    padding: 12px;
+    vertical-align: middle;
+}
 
+input[type=radio] {
+    display:none;
+    margin:10px;
+    vertical-align: middle;
+
+}
+
+input[type=radio] + label {
+    margin:0px;
+    margin-top: 3px;
+    padding: 2px;
+    background-color: #666666;
+    color: #000000;
+    width: 50px;
+    height: 50px;
+    display:inline-block;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #666666;
+    margin-left: 4px;
+}
+
+input[type=radio]:checked + label {
+    background-color: #CCCCCC;
+    border: 1px solid white;
 }
