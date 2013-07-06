@@ -268,10 +268,10 @@ var BaseDraw = function(x, y, color){
 
 BaseDraw.prototype.size = squareSize;
 
-BaseDraw.prototype.draw = function(){
-    ctx.fillStyle = this.color;
+BaseDraw.prototype.draw = function(fill, stroke){
+    ctx.fillStyle = typeof fill !== 'undefined' ? fill : this.color;
+    ctx.strokeStyle = typeof stroke !== 'undefined' ? stroke : "#FF0000";
     ctx.fillRect(this.x, this.y, this.size, this.size);
-    ctx.strokeStyle = "#ff0000";
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
@@ -288,9 +288,16 @@ BaseDraw.prototype.getRect = function(){
 
 
 var Square = function(x, y){
-    this.basedraw = new BaseDraw(x, y, '#663300');
+    this.basedraw = new BaseDraw(x, y, '#333333');
     this.walkable = true;
 };
+
+var bgImage = new Image(); bgImage.src = 'images/tileBG.png';
+var bgPattern = ctx.createPattern(bgImage,'repeat');
+
+Square.prototype.draw = function() {
+    this.basedraw.draw(bgPattern, "#CCCCCC");
+}
 
 var Trap = function(x, y, props){
     this.basedraw = new BaseDraw(x, y, props['color']);
@@ -363,7 +370,7 @@ var Map = function(){
 Map.prototype.draw = function(){
     clearScreen();
     for (var i = 0; i < this.squares.length; i++){
-        this.squares[i].basedraw.draw();
+        this.squares[i].draw();
     }
     for (var j = 0; j < this.traps.length; j++){
         this.traps[j].basedraw.draw();
@@ -470,7 +477,7 @@ var getTrap = function() {
 	if (traps[i].checked) {
 	    return allTraps[traps[i].value];
 	}
-    } 
+    }
 };
 
 var buttonPress = function(){};
@@ -531,7 +538,7 @@ Hero.prototype.update = function(interval, allThings){
     if (newX > 480 || newY > 480 || newX < 0 || newY < 0){
         canMove = false;
     }
-    
+
     for (var i = 0; i < allThings.length; i++){
         if (containsPos(allThings[i].basedraw.getRect(), [newX, newY])){
             if (!allThings[i].walkable){
@@ -600,9 +607,16 @@ Hero.prototype.update = function(interval, allThings){
     }
 };
 
+var heroImage = new Image(); heroImage.src = 'images/hero.png';
+var heroPattern = ctx.createPattern(heroImage,'no-repeat');
+
+
 Hero.prototype.draw = function(){
-    ctx.fillStyle = '#aaaaaa';
-    ctx.fillRect(this.x, this.y, 20, 20);
+    ctx.drawImage(heroImage,this.x,this.y,20,20);
+ /*    ctx.rect(this.x, this.y, 20, 20);
+    ctx.strokeStyle = '#0099FF';
+    ctx.lineWidth = 1;
+    ctx.stroke();       */
     var heroString = document.getElementById('hero');
     heroString.innerHTML = 'health: ' + this.health;
 };
