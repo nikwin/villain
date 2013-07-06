@@ -269,21 +269,67 @@ Square.prototype.draw = function(){
     ctx.lineTo(this.x + this.size, this.y);
     ctx.closePath();
     ctx.stroke();
+};
+
+Square.prototype.getRect = function(){
+    return [this.x, this.y, this.size, this.size];
 }
+
+var Trap = function(x, y){
+    this.x = x;
+    this.y = y;
+};
+
+Trap.prototype.size = 60;
+
+Trap.prototype.draw = function(){
+    ctx.fillStyle = '#0000ff';
+    ctx.fillRect(this.x, this.y, this.size, this.size);
+    ctx.strokeStyle = "#ff0000";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(this.x, this.y + this.size);
+    ctx.lineTo(this.x + this.size, this.y + this.size);
+    ctx.lineTo(this.x + this.size, this.y);
+    ctx.closePath();
+    ctx.stroke();
+};
 
 var Map = function(){
     this.squares = [];
+    this.traps = [];
     for (var x = 0; x < 480; x += Square.prototype.size){
         for (var y = 0; y < 480; y += Square.prototype.size){
             this.squares.push(new Square(x, y));
         }
     }
+    bindHandler.bindFunction(this.getTouchFunction())
 };
 
 Map.prototype.draw = function(){
+    ctx.fillStyle = '#000000'
+    ctx.fillRect(0, 0, 1000, 1000);
     for (var i = 0; i < this.squares.length; i++){
         this.squares[i].draw();
     }
+    for (var i = 0; i < this.traps.length; i++){
+        this.traps[i].draw();
+    }
+};
+
+Map.prototype.getTouchFunction = function(){
+    var that = this;
+    return function(e){
+        var pos = getPos(e);
+        for (var i = 0; i < that.squares.length; i++){
+            if (containsPos(that.squares[i].getRect(), pos)){
+                var square = that.squares[i];
+                that.squares.splice(i, 1);
+                that.traps.push(new Trap(square.x, square.y));
+            }
+        }
+    };
 }
 
 var getFrameFunctions = function(){
