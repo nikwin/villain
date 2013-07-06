@@ -303,12 +303,19 @@ var Square = function(x, y){
 };
 
 var bgImage = new Image();
+bgImage.src = 'images/tileBG.png';
 
 Square.prototype.draw = function() {
     this.basedraw.draw(ctx.createPattern(bgImage, "repeat"), "#CCCCCC");
+    if (this.hasBeenWalkedUpon){
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(this.basedraw.x, this.basedraw.y, this.basedraw.size, this.basedraw.size);
+        ctx.globalAlpha = 1;
+    }
 }
 
-bgImage.src = 'images/tileBG.png';
+
 
 
 var Trap = function(x, y, props){
@@ -347,6 +354,7 @@ Trap.prototype.draw = function() {
 
 var Villain = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#00ff00');
+    this.walkable = true;
 };
 
 var HeroStart = function(x, y){
@@ -367,15 +375,23 @@ var Map = function(){
     this.squares = [];
     this.traps = [];
     this.selectedTrap = null;
-    for (var x = 0; x < 480; x += squareSize){
-        for (var y = 0; y < 480; y += squareSize){
+
+    for (var x = 0; x < 540; x += squareSize){
+        this.traps.push(new Trap(x, 0, allTraps['lava pit']));
+        this.traps.push(new Trap(x, 540 - squareSize, allTraps['lava pit']));
+        this.traps.push(new Trap(0, x, allTraps['lava pit']));
+        this.traps.push(new Trap(540 - squareSize, x, allTraps['lava pit']));
+    }
+    
+    for (var x = squareSize; x < 540 - squareSize; x += squareSize){
+        for (var y = squareSize; y < 540 - squareSize; y += squareSize){
             if ((x != 420 || y != 420) && (x != 0 || y != 0)){
                 this.squares.push(new Square(x, y));
             }
         }
     }
-    this.traps.push(new HeroStart(0, 0));
-    this.villain = new Villain(420, 420);
+    this.traps.push(new HeroStart(squareSize, squareSize));
+    this.villain = new Villain(540 - 2 * squareSize, 540 - 2 * squareSize);
     this.traps.push(this.villain);
     bindHandler.bindFunction(this.getTouchFunction())
 };
@@ -470,9 +486,9 @@ var allTraps = {
 	'fireRate': 0,
 	'walkable': false
     },
-    'two': {
-	'name': 'Two',
-        'color': '#cccc00',
+    'turret': {
+	'name': 'Turret',
+        'color': '#cccccc',
 	'cost': {
 	    'money': 10,
 	    'minions': 1
@@ -537,7 +553,7 @@ var Hero = function(x, y){
                        [-1, 0],
                        [0, -1]];
     this.walkingBlock = undefined;
-    this.blocksNotWalked = [];
+    this.blocksTouching = [];
 };
 
 Hero.prototype.speed = 60;
@@ -547,17 +563,31 @@ Hero.prototype.update = function(interval, allThings){
     var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval;
     var canMove = true;
 
-    if (newX > 480 || newY > 480 || newX < 0 || newY < 0){
+    if (newX > 540 || newY > 540 || newX < 0 || newY < 0){
         canMove = false;
     }
 
+    var blocksTouching = []
     for (var i = 0; i < allThings.length; i++){
-        if (containsPos(allThings[i].basedraw.getRect(), [newX, newY])){
+        if (collideRect(allThings[i].basedraw.getRect(), this.getRect([newX, newY]))){
+            blocksTouching.push(allThings[i]);
             if (!allThings[i].walkable){
                 canMove = false;
                 break;
             }
-            else if (this.walkingBlock != allThings[i]){
+            else{
+                var shouldSkip = false;
+                for (var j = 0; j < this.blocksTouching.length; j++){
+                    if (allThings[i] == this.blocksTouching[j]){
+                        shouldSkip = true;
+                        break;
+                    }
+                }
+
+                if (shouldSkip){
+                    continue;
+                }
+                
                 if (allThings[i].hasBeenWalkedUpon){
                     canMove = false;
                 }
@@ -569,16 +599,16 @@ Hero.prototype.update = function(interval, allThings){
             }
         }
     }
-
+    
     if (canMove){
         this.x = newX;
         this.y = newY;
+        this.blocksTouching = blocksTouching;
     }
     else{
         this.currentDirection = undefined;
-        for (var i = 0; i < this.directions.length; i++){
-            var blockPos = [this.x + this.directions[i][0] * squareSize,
-                            this.y + this.directions[i][1] * squareSize];
+        for (var i = 0; i < this.directions.length && this.currentDirection == undefined; i++){
+            var blockPos = this.snapSquare(this.directions[i]);
             for (var j = 0; j < allThings.length; j++){
                 if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
                     if (allThings[j].walkable && ! allThings[j].hasBeenWalkedUpon){
@@ -588,36 +618,41 @@ Hero.prototype.update = function(interval, allThings){
                 }
             }
         }
-        if (this.currentDirection == undefined){
-            for (var i = 0; i < this.directions.length; i++){
-                var blockPos = [this.x + this.directions[i][0] * squareSize,
-                                this.y + this.directions[i][1] * squareSize];
-                for (var j = 0; j < allThings.length; j++){
-                    if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
-                        if (!allThings[j].hasBeenWalkedUpon){
-                            this.currentDirection = i;
-                            allThings[j].walkable = true;
-                            break;
-                        }
+        for (var i = 0; i < this.directions.length && this.currentDirection == undefined; i++){
+            var blockPos = this.snapSquare(this.directions[i]);
+            for (var j = 0; j < allThings.length; j++){
+                if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
+                    if (!allThings[j].hasBeenWalkedUpon){
+                        this.currentDirection = i;
+                        allThings[j].walkable = true;
+                        break;
                     }
                 }
             }
         }
-        if (this.currentDirection == undefined){
-            for (var i = 0; i < this.directions.length; i++){
-                var blockPos = [this.x + this.directions[i][0] * squareSize,
-                                this.y + this.directions[i][1] * squareSize];
-                for (var j = 0; j < allThings.length; j++){
-                    allThings[j].hasBeenWalkedUpon = false;
-                    if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
-                        this.currentDirection = i;
-                        allThings[j].walkable = true;
-                    }
+        for (var i = 0; i < this.directions.length && this.currentDirection == undefined; i++){
+            var blockPos = this.snapSquare(this.directions[i]);
+            for (var j = 0; j < allThings.length; j++){
+                allThings[j].hasBeenWalkedUpon = false;
+                if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
+                    this.currentDirection = i;
+                    allThings[j].walkable = true;
                 }
             }
         }
     }
 };
+
+Hero.prototype.snapSquare = function(direction){
+    var basex = Math.floor(this.x / squareSize) * squareSize + squareSize / 2;
+    var basey = Math.floor(this.y / squareSize) * squareSize + squareSize / 2;
+    return [basex + direction[0] * squareSize,
+            basey + direction[1] * squareSize];
+}
+
+Hero.prototype.getRect = function(pos){
+    return [pos[0], pos[1], 20, 20];
+}
 
 var heroImage = new Image(); heroImage.src = 'images/hero.png';
 var heroPattern = ctx.createPattern(heroImage,'no-repeat');
@@ -632,7 +667,7 @@ Hero.prototype.draw = function(){
 var GameLevel = function(game, map) {
     this.game = game;
     this.allThings = map.allThings();
-    this.hero = new Hero(10, 10);
+    this.hero = new Hero(squareSize + 10, squareSize + 10);
     this.villain = map.villain;
 };
 
