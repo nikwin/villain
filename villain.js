@@ -277,26 +277,25 @@ var BaseDraw = function(x, y, color, image){
         this.image = new Image();
         this.image.src = image;
     }
+    this.rotation = 0;
 }
 
 BaseDraw.prototype.size = squareSize;
 
-BaseDraw.prototype.draw = function(fill, stroke){
-    if (this.image != undefined){
+BaseDraw.prototype.draw = function(fill){
+    if (this.rotation){
+        ctx.save();
+        ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
+        ctx.rotate(this.rotation);
+        ctx.drawImage(this.image, - this.size / 2, - this.size / 2, this.size, this.size);
+        ctx.restore();
+    }
+    else if (this.image != undefined){
         ctx.drawImage(this.image, this.x, this.y, this.size, this.size);
     }
     else{
         ctx.fillStyle = typeof fill !== 'undefined' ? fill : this.color;
-        ctx.strokeStyle = typeof stroke !== 'undefined' ? stroke : "#FF0000";
         ctx.fillRect(this.x, this.y, this.size, this.size);
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x, this.y + this.size);
-        ctx.lineTo(this.x + this.size, this.y + this.size);
-        ctx.lineTo(this.x + this.size, this.y);
-        ctx.closePath();
-        ctx.stroke();
     }
 };
 
@@ -323,14 +322,14 @@ Square.prototype.draw = function() {
     }
 }
 
-var Shot = function(x, y, damage, target){
-    this.basedraw = new BaseDraw(x, y, '#ffffff');
+var Shot = function(x, y, damage, target, color){
+    this.basedraw = new BaseDraw(x, y, '#ffffff', 'images/bullet.png');
     this.basedraw.size = 10;
     this.damage = damage;
     this.target = target;
 }
 
-Shot.prototype.speed = 100;
+Shot.prototype.speed = 150;
 
 var getSquareDist = function(p1, p2){
     var x = p1[0] - p2[0];
@@ -345,6 +344,7 @@ Shot.prototype.update = function(interval){
     var sum = xRatio + yRatio;
     this.basedraw.x += (xRatio * dist / sum) * ((this.target.x  > this.basedraw.x) ? 1 : -1);
     this.basedraw.y += (yRatio * dist / sum) * ((this.target.y  > this.basedraw.y) ? 1 : -1);
+    this.basedraw.rotation = Math.atan(yRatio / xRatio) + ((this.target.y  > this.basedraw.y) ? 0 : Math.pi);
     if (getSquareDist([this.basedraw.x, this.basedraw.y], [this.target.x, this.target.y]) < 100){
         this.target.health -= this.damage;
         this.target.wasShot = .3;
@@ -382,7 +382,8 @@ Trap.prototype.fire = function(hero, time) {
 	return;
     }
     this.nextFire = 1 / this.fireRate;
-    this.shots.push(new Shot(this.basedraw.x, this.basedraw.y, this.damage, hero));
+    this.shots.push(new Shot(this.basedraw.x, this.basedraw.y,
+                             this.damage, hero));
 }
 
 Trap.prototype.update = function(interval, hero) {
