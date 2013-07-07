@@ -1192,6 +1192,8 @@ var ManagerLevel = function(){
 };
 
 ManagerLevel.prototype.draw = function(){
+    resetMinions();
+    updateHud();
 };
 
 ManagerLevel.prototype.update = function(){
@@ -1214,8 +1216,8 @@ var GameLevel = function(map) {
     if (game.hasModifier('strike')) {
 	setTimeout(function() {
 	    showEventPopup(strikeEnd);
-	    currencies.minions = personManager.people().length;
 	    game.removeModifier('strike');
+	    resetMinions();
 	}, 5000);
     }
 };
@@ -1619,7 +1621,7 @@ Game.prototype.updateForLevel = function() {
 Game.prototype.incrementLevel = function() {
     this.currentLevel = min(levelSetup.length - 1, this.currentLevel + 1);
     this.updateForLevel();
-    currencies.money -= personManager.totalCost();
+    currencies.subtract('money', personManager.totalCost());
     moneySpentOnLifeInsurance += personManager.lifeInsurance();
 }
 
