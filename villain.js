@@ -1403,6 +1403,13 @@ Game.prototype.addModifier = function(modifier) {
 		break;
 	    }
 	}
+    } else if (modifier[0] === 'henchpeople') {
+	for (var i = 0; i < events.length; i++) {
+	    if (events[i]['title'] === 'Gender Equality') {
+		events.splice(i, 1);
+		break;
+	    }
+	}
     }
     this.modifiers.push(modifier);
 }

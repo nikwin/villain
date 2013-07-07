@@ -7,7 +7,7 @@ var villainTechTree = [
 
 var events = [
     {
-	'title': 'Gender Equality',
+	'title': 'Gender Equality', // this is referenced in villain.js. hardcoded
 	'text': 'Some of your female henchmen are displeased with the terminology and are demanding you refer to them as henchpeople.',
 	'options': [
 	    {'text': 'Fine. All genders are equal to me - AS MY SLAVES!', 'effect': 'henchpeople'}, // not implemented
