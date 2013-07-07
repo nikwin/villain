@@ -276,9 +276,9 @@ td {
 #manager {
  background-color: #FFFFFF;
  width: 700px;
- height: 400px;
+ height: 200px;
  border: 2px #4a4a4a solid;
- display: none;
+ display: block;
  margin-top: 30px;
 }
 
@@ -326,13 +326,24 @@ td {
  background-color: #050589;
 }
 
-#minus {
+.minus {
     float: left;
 }
 
-#arrows {
+.arrows {
     float:right;
 }
 
 #obitButton {
+}
+
+#HRWindow {
+    display: block;
+    position: relative;
+    top: -110px;
+    left: 100px;
+    width: 650px;
+    height: auto;
+    background-color: #FFFFFF;
+    border: 2px #4a4a4a solid;
 }

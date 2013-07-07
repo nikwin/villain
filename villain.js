@@ -943,8 +943,8 @@ var fireButtonPress = function(){
 };
 
 var expensesButtonPress = function(){
-    document.getElementById('manager').style.display = 'none';
-    document.getElementById('hireList').style.display = 'block';
+    //document.getElementById('manager').style.display = 'none';
+    document.getElementById('HRWindow').style.display = 'block';
     var people = personManager.people();
     var html = 'People: ' + people.length + ' Money: ' + currencies.money + ' Cost: ' + personManager.salary();
     html += '<table><tr><th>Name</th><th>Salary</th></tr>';
@@ -953,22 +953,22 @@ var expensesButtonPress = function(){
     }
     html += '</table>';
     html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
-    document.getElementById('hireList').innerHTML = html;
+    document.getElementById('HRWindowText').innerHTML = html;
 };
 
 var schemeButtonPress = function(){
 };
 
 var obituariesButtonPress = function(){
-    document.getElementById('manager').style.display = 'none';
-    document.getElementById('hireList').style.display = 'block';
+    //document.getElementById('manager').style.display = 'none';
+    document.getElementById('HRWindow').style.display = 'block';
     var obits = personManager.obits();
     var html = '';
     for (var i = 0; i < obits.length; i++){
         html += '<p>' + obits[i] + '</p>';
     }
     html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
-    document.getElementById('hireList').innerHTML = html;
+    document.getElementById('HRWindowText').innerHTML = html;
 }
 
 var hirePerson = function(){};
@@ -976,7 +976,7 @@ var hirePerson = function(){};
 var homeButtonPress = function(){
     document.getElementById('game').style.display = 'none';
     document.getElementById('manager').style.display = 'block';
-    document.getElementById('hireList').style.display = 'none';
+    document.getElementById('HRWindow').style.display = 'none';
 };
 
 var ManagerLevel = function(){
@@ -991,8 +991,8 @@ var ManagerLevel = function(){
     }
     
     hireButtonPress = function(){
-        document.getElementById('manager').style.display = 'none';
-        document.getElementById('hireList').style.display = 'block';
+       // document.getElementById('manager').style.display = 'none';
+        document.getElementById('HRWindow').style.display = 'block';
         var html = 'People: ' + personManager.people().length + ' Money: ' + currencies.money;
         html += '<table><tr><th>Name</th><th>Salary</th><th>Actions</th></tr>';
         for (var i = 0; i < that.potentials.length; i++){
@@ -1001,7 +1001,7 @@ var ManagerLevel = function(){
         }
         html += '</table>';
         html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
-        document.getElementById('hireList').innerHTML = html;
+        document.getElementById('HRWindowText').innerHTML = html;
     };
     hirePerson = function(i){
         var person = that.potentials[i];
@@ -1021,7 +1021,7 @@ ManagerLevel.prototype.update = function(){
     if (!this.running){
         document.getElementById('game').style.display = 'block';
         document.getElementById('manager').style.display = 'none';
-        document.getElementById('hireList').style.display = 'none'
+        document.getElementById('HRWindow').style.display = 'none'
         game.currentMode = new SetupLevel();
     }
 };
