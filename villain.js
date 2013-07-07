@@ -671,6 +671,7 @@ SetupLevel.prototype.makePressFunction = function() {
     var that = this;
     return function(){
 	game.currentMode = new GameLevel(that.map);
+	waveButtonPress = function(){};
     }
 };
 
@@ -804,9 +805,12 @@ Hero.prototype.draw = function(){
     }
 };
 
+var getPersonSalary = function(person) {
+    return game.hasModifier('minionSalaryIncrease') ? person.salary + parseInt(game.getModifier('minionSalaryIncrease')[1]) : person.salary;
+}
+
 var personManager = (function(){
     var people = [];
-
 
     var getRandomPerson = function(){
         return {
@@ -829,9 +833,9 @@ var personManager = (function(){
             return potentials;
         },
         'hire': function(person){
-            if (currencies.money >= person.salary){
+            if (currencies.money >= getPersonSalary(person)){
                 people.push(person);
-                currencies.money -= person.salary;
+                currencies.money -= getPersonSalary(person);
                 return true;
             }
             return false;
@@ -842,7 +846,7 @@ var personManager = (function(){
         'salary': function(){
             var total = 0;
             for (var i = 0; i < people.length; i++){
-                total += people[i].salary;
+                total += getPersonSalary(people[i]);
             }
             return total;
         }
@@ -862,7 +866,7 @@ var expensesButtonPress = function(){
     var html = 'People: ' + people.length + ' Money: ' + currencies.money + ' Cost: ' + personManager.salary();
     html += '<table><tr><th>Name</th><th>Salary</th></tr>';
     for (var i = 0; i < people.length; i++){
-        html += '<tr><td>' + people[i].name + '</td><td>' + people[i].salary + '</td></tr>';
+        html += '<tr><td>' + people[i].name + '</td><td>' + getPersonSalary(people[i]) + '</td></tr>';
     }
     html += '</table>';
     html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
@@ -898,7 +902,7 @@ var ManagerLevel = function(){
         html += '<table><tr><th>Name</th><th>Salary</th><th>Actions</th></tr>';
         for (var i = 0; i < that.potentials.length; i++){
             var props = that.potentials[i]
-            html += '<tr><td>'+props.name+'</td><td>'+props.salary+'</td><td><input onclick=\"hirePerson(' + i + ')\" type=\"button\" value=\"Hire\" /></td></tr>';
+            html += '<tr><td>'+props.name+'</td><td>'+getPersonSalary(props)+'</td><td><input onclick=\"hirePerson(' + i + ')\" type=\"button\" value=\"Hire\" /></td></tr>';
         }
         html += '</table>';
         html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
@@ -967,7 +971,7 @@ GameLevel.prototype.update = function(interval){
 var ResultsMode = function(victory) {
     game.incrementLevel();
     this.drawScreen(victory);
-    waveButtonPress = this.makePressFunction();
+    // waveButtonPress = this.makePressFunction();
     this.isFinished = false;
     bindHandler.clear();
     bindHandler.bindFunction(this.makeFinishScreen());
@@ -1162,11 +1166,11 @@ Game.prototype.hasModifier = function(modifier) {
 }
 
 Game.prototype.addModifier = function(modifier) {
-    this.modifiers.push(modifier);
     if (modifier[0] === 'tempReduceCurrency') {
 	var change = modifier[1].split(':');
 	currencies[change[0]] = max(currencies[change[0]] - parseInt(currencies[change[1]]), 0);
     }
+    this.modifiers.push(modifier);
 }
 
 Game.prototype.initialize = function() {

@@ -19,4 +19,4 @@ var temporaryModifiers = [
     'tempReduceCurrency'
 ];
 
-// implemented modifiers: reload, research, cheap, tempReduceCurrency
+// implemented modifiers: reload, research, cheap, tempReduceCurrency, minionSalaryIncrease
