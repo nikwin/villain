@@ -200,6 +200,7 @@ td {
     top: 200px;
     left: 135px;
     visibility:visible;
+    display: block;
 }
 
 .popupButton {
@@ -227,15 +228,19 @@ td {
 }
 
 #button1 {
- left: 40px;
+ left: 45px;
+ width: 80%;
  visibility: hidden;
+ bottom: 36px;
 }
 
 #button2{
- right: 40px;
+ right: 45px;
+ width:80%;
  visibility: hidden;
 }
 
 #okButton {
  left: 175px;
+ visibility: visible;
 }

@@ -857,7 +857,7 @@ var hireButtonPress = function(){};
 
 var fireButtonPress = function(){
     document.getElementById('fireButton').disabled = true;
-    alert("They're unionized.");
+    showPopup('Fired Up','Unfortunately, after one too many ex-employees leaked dangerous information about your operations to MI6, and a particularly nasty contract negotiation, you agreed not to let your minions go.',function(){},'I forgot');
 };
 
 var expensesButtonPress = function(){
@@ -1152,14 +1152,20 @@ var okButtonCallback = function(){};
 var hidePopup = function() {
     document.getElementById('popupBlocker').style.visibility = 'hidden';
     document.getElementById('popupMessage').style.visibility = 'hidden';
+    document.getElementById('popupTitle').style.visibility = 'hidden';
+    document.getElementById('popupText').style.visibility = 'hidden';
     document.getElementById('okButton').style.visibility = 'hidden';
     document.getElementById('button1').style.visibility = 'hidden';
     document.getElementById('button2').style.visibility = 'hidden';
+    document.getElementById('popupMessage').style.display = 'none';
 }
 
 var showPopup = function(title, text, okCallback, okText, oneCallback, oneText, twoCallback, twoText) {
     document.getElementById('popupBlocker').style.visibility = 'visible';
     document.getElementById('popupMessage').style.visibility = 'visible';
+    document.getElementById('popupMessage').style.display = 'block';
+    document.getElementById('popupTitle').style.visibility = 'visible';
+    document.getElementById('popupText').style.visibility = 'visible';
     document.getElementById('popupTitle').innerHTML = title;
     document.getElementById('popupText').innerHTML = text;
     var okButton = document.getElementById('okButton');
