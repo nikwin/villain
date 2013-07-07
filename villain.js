@@ -464,8 +464,11 @@ var makeTrap = function(x, y, props){
 
 var Villain = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#00ff00');
+    this.x = x; this.y = y;
     this.walkable = true;
 };
+
+
 
 var HeroStart = function(x, y){
     this.basedraw = new BaseDraw(x, y, '#ffffff');
@@ -632,6 +635,7 @@ var allTraps = {
     'turret': {
 	'name': 'Turret',
         'color': '#cccccc',
+        'image': 'images/turret.png',
 	'cost': {
 	    'money': 10,
 	    'minions': 1
@@ -836,7 +840,7 @@ var heroImage = new Image();
 heroImage.src = 'images/hero.png';
 
 Hero.prototype.draw = function(){
-    ctx.drawImage(heroImage,this.x,this.y,20,20);
+    ctx.drawImage(heroImage,this.x,this.y,60,60);
     if (this.wasShot > 0){
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
@@ -844,6 +848,13 @@ Hero.prototype.draw = function(){
     for (var i = 0; i < this.shots.length; i++){
         this.shots[i].basedraw.draw();
     }
+};
+
+var lairImage = new Image();
+lairImage.src = 'images/lair.png';
+
+Villain.prototype.draw = function(){
+    ctx.drawImage(lairImage,this.x,this.y,60,60);
 };
 
 var getPersonSalary = function(person) {

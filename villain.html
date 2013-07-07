@@ -6,8 +6,7 @@
 	    <link rel="stylesheet" href="villain.css" type="text/css" media="screen">
     </head>
     <body>
-      <div id="game">
-        <div id = "HUD">
+    <div id = "HUD">
             <span id = "level">
                 <span id = "levelIcon">Wave</span>
                 <span id = "levelNumber">LEVEL</span>
@@ -24,7 +23,8 @@
                 <span id = "techIcon"><img src='images/tech.png' class="HUDIcon" /></span>
                 <span id = "techAmount">TECH</span>
             </span>
-        </div>
+    </div>
+      <div id="game">
         <p id="hero"></p>
         <p id="selected"></p>
         <canvas id="canvas" width="540" height="540" align="center"></canvas>
@@ -51,15 +51,20 @@
             </button>
             <button id="fireButton" onclick="fireButtonPress()" type="button" class="HRButton">
                 <img src = "images/minion-Fire.png" width=40 height=40 />
-                <div class = "HRText">Firing</div
+                <div class = "HRText">Firing</div>
             </button>
             <button id="expenseButton" onclick="expensesButtonPress()" type="button" class="HRButton">
                 <img src = "images/money.png" width=40 height=40 />
-                <div class = "HRText">Expense</div
+                <div class = "HRText">Expense</div>
             </button>
             <button id="schemeButton" onclick="schemeButtonPress()" type="button" class="HRButton">
                 <img src = "images/tech.png" width=40 height=40 />
-                <div class = "HRText">Scheme!</div
+                <div class = "HRText">Scheme!</div>
+            </button>
+            <br />
+            <button id="obitButton" onclick="obituariesButtonPress()" type="button" class="HRButton">
+                <img src = "images/death.png" width=40 height=40 />
+                <div class = "HRText">Obituaries!</div>
             </button>
         </div>
       </div>

@@ -252,6 +252,7 @@ td {
  height: 400px;
  border: 2px #4a4a4a solid;
  display: none;
+ margin-top: 30px;
 }
 
 .HRHeader {
@@ -271,6 +272,7 @@ td {
  border: 1px solid white;
  background: none;
  box-shadow: none;
+ display: inline-block;
 }
 
 .HRButton:disabled {
@@ -306,5 +308,4 @@ td {
 }
 
 #obitButton {
-    display: inline-block;
 }
