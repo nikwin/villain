@@ -366,6 +366,7 @@ var Trap = function(x, y, props){
     this.nextFire = 0;
     this.shots = [];
     this.wasShot = 0;
+    this.shooting = 0;
 };
 
 Trap.prototype.isInRange = function(x, y) {
@@ -381,6 +382,9 @@ Trap.prototype.fire = function(hero, time) {
     this.nextFire = 1 / this.fireRate;
     this.shots.push(new Shot(this.basedraw.x, this.basedraw.y,
                              this.damage, hero));
+    this.shooting = 0.3;
+    this.basedraw.rotation = 0;
+    this.delRot = 0.1;
 }
 
 Trap.prototype.update = function(interval, hero) {
@@ -391,6 +395,24 @@ Trap.prototype.update = function(interval, hero) {
         }
     }
     this.wasShot -= interval;
+
+    if (this.shooting > 0){
+        this.basedraw.rotation += this.delRot * interval;
+        if (this.basedraw.rotation > 0.6 || this.basedraw.rotation < -0.6){
+            this.delRot *= -1;
+            if (this.basedraw.rotation > .6){
+                this.basedraw.rotation = .6;
+            }
+            if (this.basedraw.rotation < -0.6){
+                this.basedraw.rotation = -0.6;
+            }
+        }
+    }
+    else{
+        this.basedraw.rotation = 0;
+    }
+    
+
     return (this.health <= 0)
 }
 
@@ -683,7 +705,7 @@ var allTraps = {
 	'walkable': false,
         'fn': Trap,
         'shootable': true,
-        'health': 10
+        'health': 40
     },
     'punch': {
         'name': 'Punchy',
