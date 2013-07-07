@@ -724,7 +724,7 @@ var allTraps = {
 	    'minions': 1
 	},
 	'range': 3 * squareSize,
-	'damage': 5,
+	'damage': 4,
 	'fireRate': 2,
         'slow': 0,
 	'walkable': false,
@@ -749,7 +749,7 @@ var allTraps = {
         'walkable': false,
         'fn': PunchTrap,
         'shootable': true,
-        'health': 40,
+        'health': 20,
         'killable': true
     },
     'grave': {
