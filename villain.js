@@ -495,11 +495,15 @@ var updateHud = function(hero, selectedTrap) {
     var levelNumber = document.getElementById('levelNumber'); levelNumber.innerHTML = game.currentLevel + 1;
 }
 
+var moneyString = '<img src="images/money.png" class="costIcon" />';
+var minionString = '<img src="images/minion.png" class="costIcon" />';
+
 var showTrapInfo = function(selectedTrap) {
     var selectedString = document.getElementById('selected');
     var trap = getTrap();
     if (typeof selectedTrap !== 'undefined' && selectedTrap !== null) {
-        selectedString.innerHTML = "<div id='trapStats'>" + trap.name + ' -- Range: ' + trap.range + ', Damage: ' + trap.damage + ', Speed: ' + trap.fireRate + "</div>";
+        selectedString.innerHTML = "<div id='trapStats'>" + trap.name + ' -- Range: ' + trap.range + ', Damage: ' + trap.damage + ', Speed: ' + trap.fireRate;
+        selectedString.innerHTML = selectedString.innerHTML + "<div id='trapCost'>Cost: "+ moneyString + trap.cost['money'] + minionString + trap.cost['minions'] + "</div></div>";
         selectedString.innerHTML = selectedString.innerHTML + "<div id='trapDesc'>" + trap.desc + "</div>";
     }
 }
