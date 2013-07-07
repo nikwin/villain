@@ -819,16 +819,28 @@ var getPersonSalary = function(person) {
 
 var personManager = (function(){
     var people = [];
+    var obits = [];
+
+    var names = ["Les Larimore", "Camie Collelo", "Joaquina Jordison", "Barry Bertone", "Lena Lu", "Hermila Hosea", "Deadra Diggins", "Quinton Quesada", "Dacia Darrington", "Tiesha Tse", "Bethann Bodin", "Nikita Noonkester", "Mackenzie Mahoney", "Krystle Kuyper", "Long Luckie", "Amado Accardo", "Addie Axford", "Carli Crosley", "Lawanda Loaiza", "Pamelia Pelkey", "Doyle Danford", "Sherry Streiff", "Shaunte Stiff", "Brenda Bratton", "Elwood Elton", "Elvira Eby", "Aurelio Arakaki", "Rosenda Roberti", "Roselle Rosario", "Denisse Daughtridge", "Harlan Herd", "Sharan Shattuck", "Scot Stigall", "Corene Cable", "Regenia Rethman", "Gertie Godina", "Kiyoko Klann", "Gilma Goltz", "Celsa Cola", "Ignacio Irvine", "Douglas Downey", "Izola Ishmael", "Shawn Sumter", "Lisa Losada", "Ines Indelicato", "Dick Dull", "Sun Sites", "Eusebio Edmonds", "Rosemarie Redfern", "Brad Blaine", "Mari Mohammed", "Garnet Gravitt", "Toccara Tanouye", "Gilbert Garden", "Hortense Hitchens", "Edmond Englehart", "Lucretia Leighty", "Larissa Lovvorn", "Regine Rhynes", "Delaine Dowd", "Barbera Berner", "Chastity Cammack", "Annabell Ault", "Digna Doggett", "Jane Joe", "Cathrine Charles", "Sana Sosebee", "Jeffery Jaco", "Evia Ellison", "Bryon Ballentine", "Arletha Armstrong", "Merrie Moshier", "Tabatha Tiernan", "Alden Akridge", "Arleen Abarca", "Fatima Favero", "Brain Bryand", "Carla Charboneau", "Ernesto Espinoza", "Alma Aoki", "Oren Omara", "Clare Clawson", "Kerstin Kintzel", "Frederick Feaster", "Elden Ericksen", "Rosalyn Roberson", "Tiesha Thurston", "Inez Ivey", "Melvina Mynatt", "Debora Demeter", "Danny Devoe", "Lenard Lach", "Lizbeth Lemmons", "Chana Conlon", "Vina Vannatta", "Essie Erbe", "Ouida Odwyer", "Titus Tooker", "Tai Tunney", "Laurine Lachermeier", "Jeanene Joyal", "Latrice Lathan", "Phebe Pushard", "Arcelia Aldape", "Ronni Reddish", "Alita Almeda", "Sharleen Southall", "Mel Mcateer", "Adelina Amundsen", "Kenisha Koenig", "Sharice Strahan", "Cordie Corum", "Cheryle Caplinger", "Odell Osterman", "Virginia Van", "Phil Perreira", "Donny Denk", "Maureen Mabrey", "Eleanora Elson", "Trula Thrower", "Shawanda Strauss", "Moriah Montz", "Mark Mcminn", "Elissa Eells", "Caroline Champlin", "Lavona Lintz", "Maya Mineo", "Velia Villani", "Cristal Collinsworth", "Youlanda Yarbrough", "Yevette Yong", "Julee Jonas", "Kay Kellum", "Jinny Johannes", "Franchesca Fairley", "Scarlett Spiller", "Isidra Inman", "Tanesha Toothaker", "Windy Wilcox", "Ethelyn Eastham", "Eartha Ericson", "Sommer Symes", "Sebastian Shireman", "Chadwick Cuneo", "Freddie Feldman", "Levi Lach", "Patience Parkhill", "Carma Culwell", "Felica Farquharson", "Bok Blackwelder", "Belva Brisson", "Shizue Stuber", "Domenic Demaio", "Charmain Chea", "Alejandra Alderete", "Philomena Poehler", "Tomi Telesco", "Isabell In", "Vince Vanderslice", "Lesha Littlefield", "Hollie Hunt", "Renee Rossin", "Doretta Durden", "Kathern Kelling", "Deane Dau", "Keisha Kissner", "Chelsey Cendejas", "Blake Bach", "Dante Dozier", "Russell Reck", "Nida Natal", "Luvenia Longino", "Shira Steen", "Susann Shy", "Essie Ehrlich", "Seth Spells", "Jessenia Jerman", "Floretta Forsman", "Rowena Reddix", "Elliot Emert", "Fabian Fortier", "Joaquin Joaquin", "Mitzie Mattie", "Vashti Villalvazo", "Myrle Mcneeley", "Nubia Noll", "Reda Rogers", "Ola Oliveira", "Tamala Torgrimson", "Clotilde Coutee", "Shelia Stowe", "Suellen Smelcer", "Dreama Dalrymple", "Jeffery Jeffers", "Florencio Fairless", "Giuseppe Gebhard", "Marilou Meuser", "Michel Mcquiggan", "Alissa Alvin", "Morgan Mac"];
+
+    var obitTemplates = ['In a tragic workplace accident earlier today, NN was burnt to a crisp after falling into an open pit of lava. In statement released today, his employer, Totally Legitimate Enterprises Inc., has said that “NN will be missed. And hopefully, this will be a lesson to everyone to wear their safety goggles on the job.”',
+                         'NN has been missing now for 3 days and the worst is feared by the family and police. NN’s daughter, Stephanie Ann, has asked that everyone be on the look out for “the very best daddy there ever was because I miss him very much.”',
+                         'Funeral services will be held this Sunday for NN, beloved father and community member. He passed away at his job this past week in what were described as “perfectly normal circumstances involving mutant bees.” This marks the 23rd such occurrence this year.',
+                         'NN, noted patron of the arts died today in a most unfortunate. His co-workers are especially bereaved. As one particularly close friend of his put it "Despite the thousands of bullets still housed in Turret 23, it will always feel empty without NN\'s cheerful face."'];
 
     var getRandomPerson = function(){
         return {
-            'name': 'a',
+            'name': randomChoice(names),
             'salary': 10
         };
     }
 
     for (var i = 0; i < 10; i++){
         people.push(getRandomPerson());
+    }
+
+    var makeObituary = function(person){
+        return random.choice(obitTemplates).replace('NN', person.name);
     }
     
     return {
@@ -857,6 +869,14 @@ var personManager = (function(){
                 total += getPersonSalary(people[i]);
             }
             return total;
+        },
+        'kill': function(){
+            var i = Math.floor(Math.random() * people.length);
+            obits.push(makeObituary(people[i]))
+            people.splice(i, 1);
+        },
+        'obits': function(){
+            return obits;
         }
     }
 })();
@@ -884,6 +904,18 @@ var expensesButtonPress = function(){
 
 var schemeButtonPress = function(){
 };
+
+var obituariesButtonPress = function(){
+    document.getElementById('manager').style.display = 'none';
+    document.getElementById('hireList').style.display = 'block';
+    var obits = personManager.obits();
+    var html = '';
+    for (var i = 0; i < obits.length; i++){
+        html += '<p>' + obits[i] + '</p>';
+    }
+    html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+    document.getElementById('hireList').innerHTML = html;
+}
 
 var hirePerson = function(){};
 
