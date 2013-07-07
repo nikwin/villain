@@ -1147,7 +1147,10 @@ var ManagerLevel = function(){
 
     if (!managerLevelOpened) {
 	managerLevelOpened = true;
-	showPopup('Villain Pro 2.1', 'Hire minions to replace ones murdered by the hero! Review your finances! Endless fun awaits in Villain Pro 2.1!', null, null, function(){}, 'Huzzah!');
+	showPopup('Villain Pro 2.1', 'Ah, the dark side of the trying to rule the world: management. Hire minions, manage your finances, and get back to the action! Endless fun awaits in Villain Pro 2.1!', null, null, function(){}, 'Ugh.');
+    }
+    else {
+        obituariesButtonPress();
     }
     
     this.hiredPeople = [];
