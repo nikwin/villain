@@ -1214,6 +1214,20 @@ var parseEventEffect = function(effect) {
     return array;
 }
 
+var showEventPopup = function(event) {
+    switch(event['options'].length) {
+    case 1:
+	showPopup(event['title'], event['text'], function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text']);
+	break;
+    case 2:
+	showPopup(event['title'], event['text'], null, null, function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text'], function(){game.addModifier(parseEventEffect(event['options'][1]['effect']))}, event['options'][1]['text']);
+	break;
+    case 3:
+    showPopup(event['title'], event['text'], function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text'], function(){game.addModifier(parseEventEffect(event['options'][1]['effect']))}, event['options'][1]['text'], function(){game.addModifier(parseEventEffect(event['options'][2]['effect']))}, event['options'][2]['text']);
+	break;
+    }
+}
+
 var Game = function() {
     this.currentLevel = 0;
     this.modifiers = [];
@@ -1238,6 +1252,7 @@ Game.prototype.addModifier = function(modifier) {
 	currencies[change[0]] = max(currencies[change[0]] - parseInt(currencies[change[1]]), 0);
     }
     this.modifiers.push(modifier);
+    console.log(this.modifiers);
 }
 
 Game.prototype.initialize = function() {
