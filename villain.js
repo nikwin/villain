@@ -821,7 +821,7 @@ var SetupLevel = function() {
     this.active = true;
     waveButtonPress = this.makePressFunction();
     if (currencies.money <= endBossConditions['money'] && currencies.minions <= endBossConditions['minions']) {
-	showPopup('Dun Dun DUN!', 'The Ultimate Hero has arrived to destroy you!', function(){}, 'Okay...');
+	showPopup('Dun Dun DUN!', 'The Ultimate Hero has arrived to destroy you!', function(){}, 'Wait, what now?');
 	game.endBoss = true;
 	console.log('hello');
     }
@@ -1283,9 +1283,10 @@ ResultsMode.prototype.drawScreen = function(victory) {
     ctx.textAlign = 'center';
     ctx.fillStyle = 'black';
     if (victory) {
-	ctx.fillText('You win!', canvas.width / 2, canvas.height / 2 - 20);
+	//ctx.fillText('You win!', canvas.width / 2, canvas.height / 2 - 20);
 	var reward = levelSetup[game.currentLevel]['currencies']['money'];
-	ctx.fillText('You get ' + reward.toString() + ' dollars.', canvas.width / 2, canvas.height / 2 + 20);
+	//ctx.fillText('You get ' + reward.toString() + ' dollars.', canvas.width / 2, canvas.height / 2 + 20);
+        showPopup('VICTORY','You have defeated the invading heroes!<br />Funds Extorted: ' + reward.toString() + '!',function(){},'Excellent');
     } else {
 	ctx.fillText('You lose.', canvas.width / 2, canvas.height / 2 - 100);
 	ctx.fillText('You got to level ' + (game.currentLevel + 1) + '.', canvas.width / 2, canvas.height / 2 - 60);

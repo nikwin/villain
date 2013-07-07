@@ -1,7 +1,7 @@
-var levelSetup = [{'currencies': {'money': 200, 'tech': 0}},
-                  {'currencies': {'money': 300, 'tech': 0}}];
+var levelSetup = [{'currencies': {'money': 20000, 'tech': 0}},
+                  {'currencies': {'money': 10000, 'tech': 0}}];
 
-var defaultSalary = 10;
+var defaultSalary = 1000;
 
 var villainTechTree = [
     {'id': 'reload', 'description': 'Traps reload faster', 'cost': 1, 'children': ['research']},
