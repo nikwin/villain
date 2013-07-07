@@ -20,7 +20,6 @@ var randomKeyFromWeightedDict = function(dict){
         keys.push(key);
     }
     var choice = Math.floor(Math.random() * sum);
-    console.log("" + sum + " " + choice)
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
         if (dict[key] > choice){
@@ -324,12 +323,14 @@ Square.prototype.draw = function() {
     }
 }
 
-var Shot = function(x, y, damage){
+var Shot = function(x, y, damage, target){
     this.basedraw = new BaseDraw(x, y, '#ffffff');
     this.basedraw.size = 10;
+    this.damage = damage;
+    this.target = target;
 }
 
-Shot.prototype.speed = 300;
+Shot.prototype.speed = 100;
 
 var getSquareDist = function(p1, p2){
     var x = p1[0] - p2[0];
@@ -337,22 +338,24 @@ var getSquareDist = function(p1, p2){
     return x*x + y*y;
 }
 
-Shot.prototype.update = function(interval, hero){
+Shot.prototype.update = function(interval){
     var dist = this.speed * interval;
-    var xRatio = (hero.x - this.basedraw.x) * (hero.x - this.basedraw.x);
-    var yRatio = (hero.y - this.basedraw.y) * (hero.y - this.basedraw.y);
+    var xRatio = (this.target.x - this.basedraw.x) * (this.target.x - this.basedraw.x);
+    var yRatio = (this.target.y - this.basedraw.y) * (this.target.y - this.basedraw.y);
     var sum = xRatio + yRatio;
-    this.basedraw.x += (xRatio * dist / sum) * ((hero.x  > this.basedraw.x) ? 1 : -1);
-    this.basedraw.y += (yRatio * dist / sum) * ((hero.y  > this.basedraw.y) ? 1 : -1);
-    if (getSquareDist([this.basedraw.x, this.basedraw.y], [hero.x, hero.y]) < 100){
-        hero.health -= this.damage;
-        hero.wasShot = .3;
+    this.basedraw.x += (xRatio * dist / sum) * ((this.target.x  > this.basedraw.x) ? 1 : -1);
+    this.basedraw.y += (yRatio * dist / sum) * ((this.target.y  > this.basedraw.y) ? 1 : -1);
+    if (getSquareDist([this.basedraw.x, this.basedraw.y], [this.target.x, this.target.y]) < 100){
+        this.target.health -= this.damage;
+        this.target.wasShot = .3;
         return true;
     }
     return false;
 }
 
 var Trap = function(x, y, props){
+    this.x = x;
+    this.y = y;
     this.basedraw = new BaseDraw(x, y, props['color'], props['image']);
     this.name = props['name'];
     this.range = props['range'];
@@ -364,6 +367,7 @@ var Trap = function(x, y, props){
     this.walkable = props['walkable'];
     this.nextFire = 0;
     this.cost = props['cost'];
+    this.shootable = props['shootable'];
     this.shots = [];
 };
 
@@ -378,13 +382,13 @@ Trap.prototype.fire = function(hero, time) {
 	return;
     }
     this.nextFire = 1 / this.fireRate;
-    this.shots.push(new Shot(this.basedraw.x, this.basedraw.y, this.damage));
+    this.shots.push(new Shot(this.basedraw.x, this.basedraw.y, this.damage, hero));
 }
 
 Trap.prototype.update = function(interval, hero) {
     this.fire(hero, interval);
     for (var i = this.shots.length - 1; i >= 0; i--){
-        if (this.shots[i].update(interval, hero)){
+        if (this.shots[i].update(interval)){
             this.shots.splice(i, 1);
         }
     }
@@ -525,7 +529,12 @@ Map.prototype.draw = function(){
         this.squares[i].draw();
     }
     for (var j = 0; j < this.traps.length; j++){
-        this.traps[j].basedraw.draw();
+        if (this.traps[j].draw != undefined){
+            this.traps[j].draw();
+        }
+        else{
+            this.traps[j].basedraw.draw();
+        }
     }
     var selectedTrap = this.selectedTrap;
     if (selectedTrap !== null) {
@@ -631,7 +640,8 @@ var allTraps = {
 	'damage': 5,
 	'fireRate': 2,
 	'walkable': false,
-        'fn': Trap
+        'fn': Trap,
+        'shootable': true
     },
     'punch': {
         'name': 'Punchy',
@@ -644,7 +654,8 @@ var allTraps = {
         'damage': 2,
         'fireRate': 2,
         'walkable': false,
-        'fn': PunchTrap
+        'fn': PunchTrap,
+        'shootable': true
     }
 };
 
@@ -696,11 +707,20 @@ var Hero = function(x, y){
     this.blocksTouching = [];
     this.wasShot = false;
     this.forcedVelocity = [0, 0];
+    this.shotCooldown = 0;
+    this.shots = [];
 };
 
-Hero.prototype.speed = 400;
+Hero.prototype.speed = 60;
+Hero.prototype.damage = 1;
+Hero.prototype.range = 3 * squareSize;
+
+Hero.prototype.isInRange = function(x, y){
+    return (getSquareDist([x, y], [this.x, this.y]) < this.range * this.range);
+}
 
 Hero.prototype.update = function(interval, allThings){
+    this.shotCooldown -= interval;
     this.wasShot -= interval;
     var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval + this.forcedVelocity[0] * interval;
     var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval + this.forcedVelocity[1] * interval;
@@ -710,7 +730,7 @@ Hero.prototype.update = function(interval, allThings){
         canMove = false;
     }
 
-    var blocksTouching = []
+    var blocksTouching = [];
     for (var i = 0; i < allThings.length; i++){
         if (collideRect(allThings[i].basedraw.getRect(), this.getRect([newX, newY]))){
             blocksTouching.push(allThings[i]);
@@ -741,8 +761,12 @@ Hero.prototype.update = function(interval, allThings){
                 }
             }
         }
+        if (allThings[i].shootable && (this.shotCooldown <= 0) && this.isInRange(allThings[i].basedraw.x, allThings[i].basedraw.y)){
+            this.shots.push(new Shot(this.x, this.y, this.damage, allThings[i]));
+            this.shotCooldown = .3;
+        }
     }
-    
+
     if (canMove){
         this.x = newX;
         this.y = newY;
@@ -789,6 +813,12 @@ Hero.prototype.update = function(interval, allThings){
             }
         }
     }
+
+    for (var i = this.shots.length - 1; i >= 0; i--){
+        if (this.shots[i].update(interval)){
+            this.shots.splice(i, 1);
+        }
+    }
 };
 
 Hero.prototype.snapSquare = function(direction){
@@ -810,6 +840,9 @@ Hero.prototype.draw = function(){
     if (this.wasShot > 0){
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
+    }
+    for (var i = 0; i < this.shots.length; i++){
+        this.shots[i].basedraw.draw();
     }
 };
 
