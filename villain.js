@@ -856,6 +856,7 @@ var personManager = (function(){
 var hireButtonPress = function(){};
 
 var fireButtonPress = function(){
+    document.getElementById('fireButton').disabled = true;
     alert("They're unionized.");
 };
 
