@@ -76,13 +76,13 @@
 
 #HUD {
     width: 704px;
-    background-color: rgb(160, 3, 2);
+    background-color: rgb(243, 240, 146);
     border-radius: 5px 5px 5px 5px;
     border: 1px ridge #000000;
     font-size:17px;
     line-height: 20px;
     text-align: center;
-    color: #FFFFFF;
+    color: #000000;
     font-weight: 500;
     position:relative;
     padding-top: 1px;
@@ -124,10 +124,18 @@ img.HUDIcon {
     padding-right: 25px;
 }
 
+#context {
+    width: 704px;
+    height: 80px;
+    background-color: #bbdeff;
+    margin: 10px 0px 10px 0px;
+    border: 1px ridge black;
+}
+
 #trapWindow {
     height:540px;
     width:130px;
-    background-color: #a10504;
+    background-color: #ec7545;
     float:right;
     border: 5px ridge #663300;
     color: #FFFFFF;

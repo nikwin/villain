@@ -488,7 +488,7 @@ var updateHud = function(hero, selectedTrap) {
     var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
     var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
     if (typeof hero !== 'undefined' && hero !== null) {
-	var heroString = document.getElementById('hero'); heroString.innerHTML = 'health: ' + hero.health;
+	var heroString = document.getElementById('hero'); heroString.innerHTML = hero.name + ': ' + hero.health + ' hp';
     } else {	
 	var heroString = document.getElementById('hero'); heroString.innerHTML = '';
     }
@@ -698,6 +698,8 @@ SetupLevel.prototype.makePressFunction = function() {
     }
 };
 
+var heroNames = ["Sir Felix", "Hero", "Sir Jeffington"];
+
 var Hero = function(x, y){
     this.x = x;
     this.y = y;
@@ -713,6 +715,8 @@ var Hero = function(x, y){
     this.forcedVelocity = [0, 0];
     this.shotCooldown = 0;
     this.shots = [];
+
+    this.name = randomChoice(heroNames);
 };
 
 Hero.prototype.speed = 60;
