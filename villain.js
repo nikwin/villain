@@ -465,6 +465,8 @@ var PunchTrap = function(x, y, props){
     this.animating = 0;
     this.punch = null;
     this.wasShot = 0;
+    this.x = x;
+    this.y = y;
 }
 
 PunchTrap.prototype.isInRange = Trap.prototype.isInRange;
@@ -665,6 +667,14 @@ Map.prototype.allThings = function(){
 }
 
 Map.prototype.removeTrap = function(trap){
+    if (!trap.killable){
+        return;
+    }
+
+    for (var i = 0; i < trap.cost.minions; i++){
+        personManager.kill();
+    }
+
     for (var i = this.traps.length; i >= 0; i--){
         if (this.traps[i] == trap){
             this.traps.splice(i, 1);
@@ -689,7 +699,8 @@ var allTraps = {
     'slow': 0,
 	'walkable': false,
         'fn': Trap,
-        'health': 100
+        'health': 100,
+        'killable': false
     },
     'turret': {
 	'name': 'Guard',
@@ -707,7 +718,8 @@ var allTraps = {
 	'walkable': false,
         'fn': Trap,
         'shootable': true,
-        'health': 40
+        'health': 40,
+        'killable': true
     },
     'punch': {
         'name': 'Anti-Magnet',
@@ -719,12 +731,13 @@ var allTraps = {
         },
         'range': 2 * squareSize,
         'damage': 2,
-        'fireRate': 2,
         'slow': 0,
+        'fireRate': 4,
         'walkable': false,
         'fn': PunchTrap,
         'shootable': true,
-        'health': 10
+        'health': 10,
+        'killable': true
     }
 };
 
@@ -1153,8 +1166,6 @@ GameLevel.prototype.update = function(interval){
 	if (typeof allThings[i].update !== 'undefined') {
 	    if (allThings[i].update(interval, this.hero)){
                 this.map.removeTrap(allThings[i]);
-                personManager.kill();
-                console.log('kill');
             }
 	}
     }
