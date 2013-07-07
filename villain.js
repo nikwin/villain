@@ -571,7 +571,7 @@ var Map = function(){
     
     for (var x = squareSize; x < 540 - squareSize; x += squareSize){
         for (var y = squareSize; y < 540 - squareSize; y += squareSize){
-            if ((x != 420 || y != 420) && (x != 0 || y != 0)){
+            if ((x != 420 || y != 420) && (x != squareSize || y != squareSize)){
                 this.squares.push(new Square(x, y));
             }
         }
