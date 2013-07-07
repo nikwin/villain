@@ -879,7 +879,7 @@ var heroImage = new Image();
 heroImage.src = 'images/hero.png';
 
 Hero.prototype.draw = function(){
-    ctx.drawImage(heroImage,this.x - 12, this.y - 16);
+    ctx.drawImage(heroImage, this.x - 12, this.y - 16);
 
     if (this.wasShot > 0){
         ctx.fillStyle = '#000000';
@@ -891,6 +891,11 @@ Hero.prototype.draw = function(){
     for (var i = 0; i < this.shots.length; i++){
         this.shots[i].basedraw.draw();
     }
+
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(this.x, this.y - 26, this.health * .6, 8);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(this.x + this.health * .6, this.y - 26, (100 - this.health) * .6, 8);
 };
 
 var lairImage = new Image();
