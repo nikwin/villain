@@ -732,15 +732,15 @@ var allTraps = {
             'money': 10,
             'minions': 2
         },
-        'range': 0,
-        'damage': 0,
+        'range': 2 * squareSize,
+        'damage': 2,
         'slow': 0,
-        'fireRate': 0,
-        'walkable': true,
-        'fn': Trap,
-        'shootable': false,
-        'health': 10,
-        'killable': false
+        'fireRate': 4,
+        'walkable': false,
+        'fn': PunchTrap,
+        'shootable': true,
+        'health': 40,
+        'killable': true
     },
     'grave': {
         'name': 'Gravestone',
@@ -751,15 +751,15 @@ var allTraps = {
             'money': 0,
             'minions': 0
         },
-        'range': 2 * squareSize,
-        'damage': 2,
+        'range': 0,
+        'damage': 0,
         'slow': 0,
-        'fireRate': 4,
-        'walkable': false,
+        'fireRate': 0,
+        'walkable': true,
         'fn': PunchTrap,
         'shootable': false,
         'health': 10,
-        'killable': true
+        'killable': false
     }
 };
 
@@ -1066,16 +1066,16 @@ var fireButtonPress = function(){
 };
 
 var expensesButtonPress = function(){
-    //document.getElementById('manager').style.display = 'none';
     document.getElementById('HRWindow').style.display = 'block';
     var people = personManager.people();
-    var html = 'People: ' + people.length + ' Money: ' + currencies.money + ' Cost: ' + personManager.salary() + ' Life Insurance: ' + personManager.lifeInsurance();
-    html += '<table><tr><th>Name</th><th>Salary</th></tr>';
+    var html = '<table><tr><th>Name</th><th>Salary</th></tr>';
     for (var i = 0; i < people.length; i++){
         html += '<tr><td>' + people[i].name + '</td><td>' + getPersonSalary(people[i]) + '</td></tr>';
     }
     html += '</table>';
+    html += 'Total Salary Expense: ' + personManager.salary() + '<br />Benefits & Pension: ' + personManager.lifeInsurance() + '<br />';
     html += '<input id="homeButton" onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+    document.getElementById('HRWindowHeaderText').innerHTML = 'Expenses';
     document.getElementById('HRWindowText').innerHTML = html;
 };
 
@@ -1091,6 +1091,7 @@ var obituariesButtonPress = function(){
         html += '<p>' + obits[i] + '</p>';
     }
     html += '<input id="homeButton" onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+    document.getElementById('HRWindowHeaderText').innerHTML = 'Obituaries';
     document.getElementById('HRWindowText').innerHTML = html;
 }
 
@@ -1116,14 +1117,14 @@ var ManagerLevel = function(){
     hireButtonPress = function(){
        // document.getElementById('manager').style.display = 'none';
         document.getElementById('HRWindow').style.display = 'block';
-        var html = 'People: ' + personManager.people().length + ' Money: ' + currencies.money;
-        html += '<table><tr><th>Name</th><th>Salary</th><th>Actions</th></tr>';
+        var html = '<table><tr><th>Name</th><th>Salary</th><th>Actions</th></tr>';
         for (var i = 0; i < that.potentials.length; i++){
             var props = that.potentials[i]
             html += '<tr><td>'+props.name+'</td><td>'+getPersonSalary(props)+'</td><td><input onclick=\"hirePerson(' + i + ')\" type=\"button\" value=\"Hire\" /></td></tr>';
         }
         html += '</table>';
         html += '<input id="homeButton" onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+        document.getElementById('HRWindowHeaderText').innerHTML = 'Hiring';
         document.getElementById('HRWindowText').innerHTML = html;
     };
     hirePerson = function(i){
