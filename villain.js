@@ -333,7 +333,6 @@ var Shot = function(x, y, damage, target, slow){
     this.damage = damage;
     this.target = target;
     this.slow = slow;
-    console.log(this.slow);
 }
 
 Shot.prototype.speed = 150;
@@ -354,7 +353,6 @@ Shot.prototype.update = function(interval){
     this.basedraw.rotation = Math.atan((this.target.y - this.basedraw.y) / (this.target.x - this.basedraw.x)) + ((this.target.y  > this.basedraw.y) ? 0 : Math.pi);
     if (getSquareDist([this.basedraw.x, this.basedraw.y], [this.target.x, this.target.y]) < 100){
         this.target.health -= this.damage;
-        console.log(this.slow);
         if (this.slow !== undefined){
             this.target.speed -= this.slow;
         }
