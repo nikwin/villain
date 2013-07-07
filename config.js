@@ -1,5 +1,64 @@
-var levelSetup = [{'currencies': {'money': 20000, 'tech': 0}},
-                  {'currencies': {'money': 10000, 'tech': 0}}];
+var levelSetup = [
+    {
+        'currencies': {'money': 20000, 'tech': 0},
+        'objective': "A young child\'s lemonade stand"
+    },
+    {
+        'currencies': {'money': 10000, 'tech': 0},
+        'objective': 'The hamburger place at the corner'
+    },
+    {
+        'currencies': {'money': 12000, 'tech': 0},
+        'objective': 'The local bank office'
+    },
+    {
+        'currencies': {'money': 14000, 'tech': 0},
+        'objective': 'A skyscraper full of business people'
+    },
+    {
+        'currencies': {'money': 16000, 'tech': 0},
+        'objective': 'The downtown area'
+    },
+    {
+        'currencies': {'money': 20000, 'tech': 0},
+        'objective': 'A medium sized city'
+    },
+    {
+        'currencies': {'money': 24000,
+                       'tech': 0},
+        'objective': 'A rather small state'
+    },
+    {
+        'currencies': {'money': 30000,
+                       'tech': 0},
+        'objective': 'The island-country'
+    },
+    {
+        'currencies': {'money': 34000,
+                       'tech': 0},
+        'objective': 'A not very important continent'
+    },
+    {
+        'currencies': {'money': 40000,
+                       'tech': 0},
+        'objective': 'A couple of linked landmasses'
+    },
+    {
+        'currencies': {'money': 50000,
+                       'tech': 0},
+        'objective': 'The entire world'
+    },
+    {
+        'currencies': {'money': 60000,
+                       'tech': 0},
+        'objective': 'The known universe'
+    },
+    {
+        'currencies': {'money': 75000,
+                       'tech': 0},
+        'objective': 'The complete set of possible realities'
+    }
+];
 
 var defaultSalary = 1000;
 
