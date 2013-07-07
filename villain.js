@@ -840,7 +840,7 @@ SetupLevel.prototype.makePressFunction = function() {
     }
 };
 
-var heroNames = ["Sir Felix", "Hero", "Sir Jeffington"];
+var heroNames = ["Slab Bulkhead","Fridge Largemeat","Butch Deadlift","Flint Ironstag","Blast Hardcheese","Smash Lampjaw","Punch Rockgroin","Dirk Hardpec","Slate Slabrock","Rip Slagcheek","Slate Fistrunch","Lump Beefbroth","Beef Blastbody","Big McLargehuge","Buff Hardback","Hack Blowfist"];
 
 var Hero = function(x, y, health, name) {
     this.x = x;
@@ -1032,7 +1032,11 @@ var personManager = (function(){
     var obitTemplates = ['In a tragic workplace accident earlier today, NN was burnt to a crisp after falling into an open pit of lava. In statement released today, his employer, Totally Legitimate Enterprises Inc., has said that “NN will be missed. And hopefully, this will be a lesson to everyone to wear their safety goggles on the job.”',
                          'NN has been missing now for 3 days and the worst is feared by the family and police. NN’s daughter, Stephanie Ann, has asked that everyone be on the look out for “the very best daddy there ever was because I miss him very much.”',
                          'Funeral services will be held this Sunday for NN, beloved father and community member. He passed away at his job this past week in what were described as “perfectly normal circumstances involving mutant bees.” This marks the 23rd such occurrence this year.',
-                         'NN, noted patron of the arts died today in a most unfortunate. His co-workers are especially bereaved. As one particularly close friend of his put it "Despite the thousands of bullets still housed in Turret 23, it will always feel empty without NN\'s cheerful face."'];
+                         'NN, noted patron of the arts died today in a most unfortunate accident. His co-workers are especially bereaved. As one particularly close friend of his put it "Despite the thousands of bullets still housed in Turret 23, it will always feel empty without NN\'s cheerful face."',
+                         'Tragedy struck Not A Secret Lair, LLC today when beloved employee NN was discovered to have a rare and fatal allergy to bullets. Coworkers were not available for comment as they were busy hiding.',
+                         'NN is no longer with us. NN has never been with us. NN was never an employee. This reporter was mistaken.',
+                         'Local entrepreneur, NN, passed away recently following an industrial accident at Loving Hugs Inc. A closed-casket service was held yesterday as NN\'ns body has been reportedly devoured by piranhas.'
+    ];
 
     var getRandomPerson = function(){
         return {
