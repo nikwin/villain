@@ -351,7 +351,7 @@ var Trap = function(x, y, props){
     this.range = props['range'];
     this.damage = props['damage'];
     this.fireRate = props['fireRate'];
-    if (game.hasVillainTech('reload')) {
+    if (game.hasModifier('reload')) {
 	this.fireRate *= 1.5;
     }
     this.walkable = props['walkable'];
@@ -469,6 +469,24 @@ var clearScreen = function(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+var updateHud = function(hero, selectedTrap) {
+    var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
+    var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
+    var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
+    if (typeof hero !== 'undefined' && hero !== null) {
+	var heroString = document.getElementById('hero'); heroString.innerHTML = 'health: ' + hero.health;
+    } else {	
+	var heroString = document.getElementById('hero'); heroString.innerHTML = '';
+    }
+    var selectedString = document.getElementById('selected');
+    if (typeof selectedTrap !== 'undefined' && selectedTrap !== null) {
+	selectedString.innerHTML = selectedTrap.name + ', range: ' + selectedTrap.range + ', damage: ' + selectedTrap.damage + ', fire rate: ' + selectedTrap.fireRate;
+    } else {
+	selectedString.innerHTML = '';
+    }
+    var levelNumber = document.getElementById('levelNumber'); levelNumber.innerHTML = game.currentLevel + 1;
+}
+
 var Map = function(){
     this.squares = [];
     this.traps = [];
@@ -513,8 +531,17 @@ Map.prototype.getTouchFunction = function(){
     var that = this;
     return function(e){
         var pos = getPos(e);
+	if (typeof game.currentMode.hero !== 'undefined') {
+	    var hero = game.currentMode.hero;
+	    for (var i = 0; i < hero.blocksTouching.length; i++) {
+		if (containsPos(hero.blocksTouching[i].basedraw.getRect(), pos)) {
+		    return;
+		}
+	    }
+	}
+
 	var selectedTrap = that.selectedTrap;
-	var discount = game.hasVillainTech('cheap') ? .8 : 1;
+	var discount = game.hasModifier('cheap') ? .8 : 1;
 	if (selectedTrap !== null) {
 	    if (containsPos(selectedTrap.basedraw.getRect(), pos)) {
 		for (var currency in selectedTrap.cost) {
@@ -635,27 +662,16 @@ var SetupLevel = function() {
 
 SetupLevel.prototype.draw = function(){
     this.map.draw();
+    updateHud(null, this.map.selectedTrap);
 };
 
 SetupLevel.prototype.update = function(interval) {
-    var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
-    var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
-    var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
-    var heroString = document.getElementById('hero'); heroString.innerHTML = '';
-    var selectedString = document.getElementById('selected');
-    var selectedTrap = this.map.selectedTrap;
-    if (selectedTrap !== null) {
-	selectedString.innerHTML = selectedTrap.name + ', range: ' + selectedTrap.range + ', damage: ' + selectedTrap.damage + ', fire rate: ' + selectedTrap.fireRate;
-    } else {
-	selectedString.innerHTML = '';
-    }
 }
 
 SetupLevel.prototype.makePressFunction = function() {
     var that = this;
     return function(){
 	game.currentMode = new GameLevel(that.map);
-	bindHandler.clear();
     }
 };
 
@@ -781,11 +797,8 @@ Hero.prototype.getRect = function(pos){
 var heroImage = new Image(); heroImage.src = 'images/hero.png';
 var heroPattern = ctx.createPattern(heroImage,'no-repeat');
 
-
 Hero.prototype.draw = function(){
     ctx.drawImage(heroImage,this.x,this.y,20,20);
-    var heroString = document.getElementById('hero');
-    heroString.innerHTML = 'health: ' + this.health;
     if (this.wasShot > 0){
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
@@ -793,12 +806,13 @@ Hero.prototype.draw = function(){
 };
 
 var GameLevel = function(map) {
-    this.allThings = map.allThings();
+    this.map = map;
     this.hero = new Hero(squareSize + 10, squareSize + 10);
     this.villain = map.villain;
 };
 
 GameLevel.prototype.changeModeForLevelEnd = function(victory) {
+    bindHandler.clear();
     game.currentMode = new ResultsMode(victory);
 }
 
@@ -812,23 +826,19 @@ GameLevel.prototype.checkLevelEnded = function() {
 }
 
 GameLevel.prototype.draw = function(){
-    for (var i = 0; i < this.allThings.length; i++){
-	if (typeof this.allThings[i].draw !== 'undefined') {
-	    this.allThings[i].draw();
-	} else {
-            this.allThings[i].basedraw.draw();
-	}
-    }
+    this.map.draw();
     this.hero.draw();
 };
 
 GameLevel.prototype.update = function(interval){
-    this.hero.update(interval, this.allThings);
-    for (var i = 0; i < this.allThings.length; i++){
-	if (typeof this.allThings[i].update !== 'undefined') {
-	    this.allThings[i].update(interval, this.hero);
+    var allThings = this.map.allThings();
+    this.hero.update(interval, allThings);
+    for (var i = 0; i < allThings.length; i++){
+	if (typeof allThings[i].update !== 'undefined') {
+	    allThings[i].update(interval, this.hero);
 	}
     }
+    updateHud(this.hero, this.map.selectedTrap);
     this.checkLevelEnded();
 };
 
@@ -839,7 +849,6 @@ var ResultsMode = function(victory) {
 }
 
 ResultsMode.prototype.drawScreen = function(victory) {
-    var heroString = document.getElementById('hero'); heroString.innerHTML = '';
     clearScreen();
     ctx.font = '20pt Arial';
     ctx.textAlign = 'center';
@@ -857,6 +866,7 @@ ResultsMode.prototype.update = function(interval) {
 }
 
 ResultsMode.prototype.draw = function() {
+    updateHud();
 }
 
 ResultsMode.prototype.makePressFunction = function() {
@@ -880,7 +890,7 @@ var TechElement = function(x, y, tech) {
 }
 
 TechElement.prototype.draw = function() {
-    if (game.hasVillainTech(this.tech['id'])) {
+    if (game.hasModifier(this.tech['id'])) {
 	this.basedraw.draw('#aaaaaa');
     } else {
 	this.basedraw.draw();
@@ -939,13 +949,11 @@ TechMode.prototype.generateTechElements = function() {
 }
 
 TechMode.prototype.update = function(interval) {
-    var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
-    var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
-    var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
 }
 
 TechMode.prototype.draw = function() {
     clearScreen();
+    updateHud();
     for (var i = 0; i < this.techElements.length; i++) {
 	this.techElements[i].draw();
     }
@@ -974,7 +982,7 @@ TechMode.prototype.getTouchFunction = function() {
 		for (var j = 0; j < villainTechTree.length; j++) {
 		    for (var k = 0; k < villainTechTree[j]['children'].length; k++) {
 			if (villainTechTree[j]['children'][k] === techElement['tech']['id']) {
-			    if (!game.hasVillainTech(villainTechTree[j]['id'])) {
+			    if (!game.hasModifier(villainTechTree[j]['id'])) {
 				canResearch = false;
 				break;
 			    }
@@ -988,9 +996,9 @@ TechMode.prototype.getTouchFunction = function() {
 		    alert('you need to research the prerequisite first');
 		    return;
 		}
-		if (!game.hasVillainTech(techElement.tech['id'])) {
+		if (!game.hasModifier(techElement.tech['id'])) {
 		    currencies['tech'] -= techElement.tech['cost'];
-		    game.villainTechs.push(techElement.tech['id']);
+		    game.modifiers.push(techElement.tech['id']);
 		}
             }
         }
@@ -1001,33 +1009,33 @@ var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}}, {'cu
 
 var Game = function() {
     this.currentLevel = 0;
-    this.villainTechs = [];
-    this.updateForLevel();
+    this.modifiers = [];
 }
 
-Game.prototype.hasVillainTech = function(tech) {
-    for (var i = 0; i < this.villainTechs.length; i++) {
-	if (this.villainTechs[i] === tech) {
+Game.prototype.hasModifier = function(tech) {
+    for (var i = 0; i < this.modifiers.length; i++) {
+	if (this.modifiers[i] === tech) {
 	    return true;
 	}
     }
     return false;
 }
 
+Game.prototype.initialize = function() {
+    this.updateForLevel();
+    this.currentMode = new SetupLevel();
+}
+
 Game.prototype.updateForLevel = function() {
-    var levelNumber = document.getElementById('levelNumber');
-    levelNumber.innerHTML = this.currentLevel + 1;
     var level = levelSetup[this.currentLevel];
     currencies.money += level['currencies']['money'];
-    if (this.hasVillainTech('research')) {
+    if (this.hasModifier('research')) {
 	currencies.tech += Math.ceil(level['currencies']['tech'] * 1.5);
     } else {
 	currencies.tech += level['currencies']['tech'];
     }	
     currencies.minions += level['currencies']['minions'];
-    var moneyAmount = document.getElementById('moneyAmount'); moneyAmount.innerHTML = currencies.money;
-    var minionsAmount = document.getElementById('minionsAmount'); minionsAmount.innerHTML = currencies.minions;
-    var techAmount = document.getElementById('techAmount'); techAmount.innerHTML = currencies.tech;
+    updateHud();
 }
 
 Game.prototype.incrementLevel = function() {
@@ -1046,7 +1054,7 @@ Game.prototype.draw = function(draw) {
 var getFrameFunctions = function(){
     var update = function(){}, draw=function(){};
     game = new Game();
-    game.currentMode = new SetupLevel();
+    game.initialize();
     return {
         'update': function(){
             var interval = timeFeed.getInterval();
