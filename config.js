@@ -90,7 +90,8 @@ var events = [
 	'title': '401k Investment',
 	'text': 'The return on your minion’s 401(k) portfolios is... insufficient. Something must be done before they notice.',
 	'options': [
-	    {'text': 'Quietly smuggle in some funds from another account.', 'effect': 'tempReduceCurrency|money:500'}
+	    {'text': 'Quietly smuggle in some funds from another account.', 'effect': 'tempReduceCurrency|money:500'},
+        {'text': 'Pay raise for everyone!', 'effect': 'minionSalaryIncrease|100'}
 	]
     },
     {
@@ -100,6 +101,14 @@ var events = [
 	    {'text': 'Agree to their demands.', 'effect': 'unions'},
 	    {'text': 'Execute the instigator for his insolence!', 'effect': 'killMinions|1'}
 	]
+    },
+    {
+        'title': 'Holiday Party',
+        'text': 'It is time for the annual holiday party and bonus. You suppose they deserve it. But there are... other options.',
+        'options': [
+            {'text': 'Pay a dividend to your employees.', 'effect': 'tempReduceCurrency|2000'},
+            {'text': 'Save on a Pinata', 'effect': 'killMinions|1'}
+        ]
     }
 ];
 
