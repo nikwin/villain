@@ -289,11 +289,6 @@ td {
 #button2{
  right: 45px;
  width:80%;
- visibility: hidden;
-}
-
-#okButton {
- left: 175px;
  visibility: visible;
 }
 

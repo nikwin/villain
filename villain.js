@@ -1351,20 +1351,17 @@ var button1Callback = function(){};
 
 var button2Callback = function(){};
 
-var okButtonCallback = function(){};
-
 var hidePopup = function() {
     document.getElementById('popupBlocker').style.visibility = 'hidden';
     document.getElementById('popupMessage').style.visibility = 'hidden';
     document.getElementById('popupTitle').style.visibility = 'hidden';
     document.getElementById('popupText').style.visibility = 'hidden';
-    document.getElementById('okButton').style.visibility = 'hidden';
     document.getElementById('button1').style.visibility = 'hidden';
     document.getElementById('button2').style.visibility = 'hidden';
     document.getElementById('popupMessage').style.display = 'none';
 }
 
-var showPopup = function(title, text, okCallback, okText, oneCallback, oneText, twoCallback, twoText) {
+var showPopup = function(title, text, oneCallback, oneText, twoCallback, twoText) {
     document.getElementById('popupBlocker').style.visibility = 'visible';
     document.getElementById('popupMessage').style.visibility = 'visible';
     document.getElementById('popupMessage').style.display = 'block';
@@ -1372,16 +1369,8 @@ var showPopup = function(title, text, okCallback, okText, oneCallback, oneText, 
     document.getElementById('popupText').style.visibility = 'visible';
     document.getElementById('popupTitle').innerHTML = henchpeopleString(title);
     document.getElementById('popupText').innerHTML = henchpeopleString(text);
-    var okButton = document.getElementById('okButton');
     var button1 = document.getElementById('button1');
     var button2 = document.getElementById('button2');
-    if (typeof okCallback !== 'undefined' && okCallback != null) {
-    	okButton.style.visibility = 'visible';
-    	okButtonCallback = okCallback;
-    	okButton.value = henchpeopleString(okText);
-    } else {
-    	okButton.style.visibility = 'hidden';
-    }
     if (typeof oneCallback !== 'undefined' && oneCallback != null) {
     	button1.style.visibility = 'visible';
     	button1Callback = oneCallback;
@@ -1408,11 +1397,6 @@ var button2Press = function() {
     button2Callback();
 }
 
-var okButtonPress = function() {
-    hidePopup();
-    okButtonCallback();
-}
-
 var parseEventEffect = function(effect) {
     var array = effect.split('|');
     return array;
@@ -1421,13 +1405,10 @@ var parseEventEffect = function(effect) {
 var showEventPopup = function(event) {
     switch(event['options'].length) {
     case 1:
-	showPopup(event['title'], event['text'], function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text']);
+	showPopup(event['title'], event['text'], null, null, function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text']);
 	break;
     case 2:
-	showPopup(event['title'], event['text'], null, null, function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text'], function(){game.addModifier(parseEventEffect(event['options'][1]['effect']))}, event['options'][1]['text']);
-	break;
-    case 3:
-    showPopup(event['title'], event['text'], function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text'], function(){game.addModifier(parseEventEffect(event['options'][1]['effect']))}, event['options'][1]['text'], function(){game.addModifier(parseEventEffect(event['options'][2]['effect']))}, event['options'][2]['text']);
+	showPopup(event['title'], event['text'], function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text'], function(){game.addModifier(parseEventEffect(event['options'][1]['effect']))}, event['options'][1]['text']);
 	break;
     }
 }
