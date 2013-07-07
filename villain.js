@@ -788,7 +788,12 @@ var SetupLevel = function() {
     this.map = new Map();
     this.active = true;
     waveButtonPress = this.makePressFunction();
-    if (game.currentLevel > 0 && Math.random() < .5) {
+    if (currencies.money <= endBossConditions['money'] && currencies.minions <= endBossConditions['minions']) {
+	showPopup('Dun Dun DUN!', 'The Ultimate Hero has arrived to destroy you!', function(){}, 'Okay...');
+	game.endBoss = true;
+	console.log('hello');
+    }
+    if (!game.endBoss && game.currentLevel > 0 && Math.random() < .5) {
     	showEventPopup(events[Math.floor(Math.random() * events.length)]);
     }
 };
@@ -811,10 +816,10 @@ SetupLevel.prototype.makePressFunction = function() {
 
 var heroNames = ["Sir Felix", "Hero", "Sir Jeffington"];
 
-var Hero = function(x, y){
+var Hero = function(x, y, health, name) {
     this.x = x;
     this.y = y;
-    this.health = 100;
+    this.health = typeof health !== 'undefined' ? health : 100;
     this.currentDirection = 0;
     this.directions = [[1,0],
                        [0,1],
@@ -827,7 +832,7 @@ var Hero = function(x, y){
     this.shotCooldown = 0;
     this.shots = [];
 
-    this.name = randomChoice(heroNames);
+    this.name = typeof name != 'undefined' ? name : randomChoice(heroNames);
 };
 
 Hero.prototype.speed = 60;
@@ -1102,10 +1107,17 @@ var homeButtonPress = function(){
     document.getElementById('HRWindow').style.display = 'none';
 };
 
+var managerLevelOpened = false;
+
 var ManagerLevel = function(){
     homeButtonPress();
     this.running = true;
     this.potentials = personManager.generatePotentialPeople(5);
+
+    if (!managerLevelOpened) {
+	managerLevelOpened = true;
+	showPopup('Villain Pro 2.1', 'Hire minions to replace ones murdered by the hero! Review your finances! Endless fun awaits in Villain Pro 2.1!', null, null, function(){}, 'Huzzah!');
+    }
     
     this.hiredPeople = [];
     var that = this;
@@ -1151,7 +1163,11 @@ ManagerLevel.prototype.update = function(){
 
 var GameLevel = function(map) {
     this.map = map;
-    this.hero = new Hero(squareSize + 10, squareSize + 10);
+    if (game.endBoss) {
+	this.hero = new Hero(squareSize + 10, squareSize + 10, 10000, 'Jimmy Bond');
+    } else {
+	this.hero = new Hero(squareSize + 10, squareSize + 10);
+    }
     this.villain = map.villain;
     if (game.hasModifier('strike')) {
 	setTimeout(function() {
@@ -1449,6 +1465,7 @@ var showEventPopup = function(event) {
 var Game = function() {
     this.currentLevel = 0;
     this.modifiers = [];
+    this.endBoss = false;
 }
 
 Game.prototype.getModifier = function(modifier) {
