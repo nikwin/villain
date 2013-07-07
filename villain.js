@@ -322,11 +322,13 @@ Square.prototype.draw = function() {
     }
 }
 
-var Shot = function(x, y, damage, target, color){
+var Shot = function(x, y, damage, target, slow){
     this.basedraw = new BaseDraw(x, y, '#ffffff', 'images/bullet.png');
     this.basedraw.size = 10;
     this.damage = damage;
     this.target = target;
+    this.slow = slow;
+    console.log(this.slow);
 }
 
 Shot.prototype.speed = 150;
@@ -347,6 +349,10 @@ Shot.prototype.update = function(interval){
     this.basedraw.rotation = Math.atan((this.target.y - this.basedraw.y) / (this.target.x - this.basedraw.x)) + ((this.target.y  > this.basedraw.y) ? 0 : Math.pi);
     if (getSquareDist([this.basedraw.x, this.basedraw.y], [this.target.x, this.target.y]) < 100){
         this.target.health -= this.damage;
+        console.log(this.slow);
+        if (this.slow !== undefined){
+            this.target.speed -= this.slow;
+        }
         this.target.wasShot = .3;
         return true;
     }
@@ -380,8 +386,9 @@ Trap.prototype.fire = function(hero, time) {
 	return;
     }
     this.nextFire = 1 / this.fireRate;
+    console.log(this.slow);
     this.shots.push(new Shot(this.basedraw.x, this.basedraw.y,
-                             this.damage, hero));
+                             this.damage, hero, this.slow));
     this.shooting = 0.3;
     this.basedraw.rotation = 0;
     this.delRot = 0.1;
@@ -698,7 +705,7 @@ var allTraps = {
 	'range': 0,
 	'damage': 0,
 	'fireRate': 0,
-    'slow': 0,
+        'slow': 0,
 	'walkable': false,
         'fn': Trap,
         'health': 100,
@@ -716,7 +723,7 @@ var allTraps = {
 	'range': 3 * squareSize,
 	'damage': 5,
 	'fireRate': 2,
-    'slow': 0,
+        'slow': 0,
 	'walkable': false,
         'fn': Trap,
         'shootable': true,
@@ -758,6 +765,25 @@ var allTraps = {
         'walkable': false,
         'fn': PunchTrap,
         'shootable': false,
+        'health': 10,
+        'killable': true
+    },
+    'slow': {
+        'name': 'The Mild Chill',
+        'color': '#aaaaaa',
+        'image': 'images/turret2.png',
+        'desc': 'He was always cold as a child. People always said that he had no emotions, but the truth is he just cares too much.',
+        'cost': {
+            'money': 10,
+            'minions': 2
+        },
+        'range': 5 * squareSize,
+        'damage': 2,
+        'slow': 2,
+        'fireRate': 4,
+        'walkable': false,
+        'fn': Trap,
+        'shootable': true,
         'health': 10,
         'killable': true
     }
@@ -836,6 +862,7 @@ var Hero = function(x, y, health, name) {
 };
 
 Hero.prototype.speed = 60;
+Hero.prototype.maxSpeed = 60;
 Hero.prototype.damage = 5;
 Hero.prototype.range = 3 * squareSize;
 
@@ -844,6 +871,9 @@ Hero.prototype.isInRange = function(x, y){
 }
 
 Hero.prototype.update = function(interval, allThings){
+    if (this.speed < this.maxSpeed){
+        this.speed = min(this.speed + interval, this.maxSpeed);
+    }
     this.shotCooldown -= interval;
     this.wasShot -= interval;
     var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval + this.forcedVelocity[0] * interval;
@@ -886,7 +916,7 @@ Hero.prototype.update = function(interval, allThings){
             }
         }
         if (allThings[i].shootable && (this.shotCooldown <= 0) && this.isInRange(allThings[i].basedraw.x, allThings[i].basedraw.y)){
-            this.shots.push(new Shot(this.x, this.y, this.damage, allThings[i]));
+            this.shots.push(new Shot(this.x, this.y, this.damage, allThings[i], 0));
             this.shotCooldown = .3;
         }
     }
