@@ -1281,7 +1281,7 @@ ResultsMode.prototype.drawScreen = function(victory) {
     ctx.textAlign = 'center';
     ctx.fillStyle = 'black';
     if (victory) {
-        ctx.fillText(levelSetup[game.currentLevel].objective, canvas.width / 2, canvas.height / 2 - 50);
+        ctx.fillText(levelSetup[game.currentLevel - 1].objective, canvas.width / 2, canvas.height / 2 - 50);
 	ctx.fillText('has surrendered to your awesome might.', canvas.width / 2, canvas.height / 2 - 20);
 	var reward = levelSetup[game.currentLevel]['currencies']['money'];
 	ctx.fillText('You get ' + reward.toString() + ' dollars.', canvas.width / 2, canvas.height / 2 + 20);
