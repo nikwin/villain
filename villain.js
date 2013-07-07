@@ -686,7 +686,11 @@ var getTrap = function() {
 var waveButtonPress = function(){};
 
 var SetupLevel = function() {
-    currencies.minions = personManager.people().length;
+    if (game.hasModifier('strike')) {
+	currencies.minions = 0;
+    } else {
+	currencies.minions = personManager.people().length;
+    }
     this.map = new Map();
     this.active = true;
     waveButtonPress = this.makePressFunction();
@@ -1034,6 +1038,13 @@ var GameLevel = function(map) {
     this.map = map;
     this.hero = new Hero(squareSize + 10, squareSize + 10);
     this.villain = map.villain;
+    if (game.hasModifier('strike')) {
+	setTimeout(function() {
+	    showEventPopup(strikeEnd);
+	    currencies.minions = personManager.people().length;
+	    game.removeModifier('strike');
+	}, 5000);
+    }
 };
 
 GameLevel.prototype.changeModeForLevelEnd = function(victory) {
@@ -1075,7 +1086,7 @@ var ResultsMode = function(victory) {
     bindHandler.clear();
     bindHandler.bindFunction(this.makeFinishScreen());
     if (Math.random() < .5) {
-	showEventPopup(events[Math.floor(Math.random() * events.length)]);
+    	showEventPopup(events[Math.floor(Math.random() * events.length)]);
     }
 };
 
@@ -1375,8 +1386,30 @@ Game.prototype.addModifier = function(modifier) {
 	    }
 	}
 	return;
+    } else if (modifier[0] === 'minionSalaryIncrease') {
+	if (game.hasModifier('minionSalaryIncrease')) {
+	    var currModifier = game.getModifier('minionSalaryIncrease');
+	    currModifier[1] = (parseInt(modifier[1]) + parseInt(currModifier[1])).toString();
+	    return;
+	}
+    } else if (modifier[0] === 'unions') {
+	events = events.concat(unionEvents);
+	for (var i = 0; i < events.length; i++) {
+	    if (events[i]['title'] === 'Unionization') {
+		events.splice(i, 1);
+		break;
+	    }
+	}
     }
     this.modifiers.push(modifier);
+}
+
+Game.prototype.removeModifier = function(modifier) {
+    for (var i = 0; i < this.modifiers.length; i++) {
+	if (this.modifiers[i][0] === modifier) {
+	    this.modifiers.splice(i, 1);
+	}
+    }
 }
 
 Game.prototype.initialize = function() {
