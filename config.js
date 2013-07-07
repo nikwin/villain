@@ -1,5 +1,5 @@
 var levelSetup = [{'currencies': {'money': 200, 'tech': 0}},
-                  {'currencies': {'money': 300, 'tech': 3}}];
+                  {'currencies': {'money': 300, 'tech': 0}}];
 
 var defaultSalary = 10;
 
