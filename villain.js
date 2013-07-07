@@ -675,6 +675,8 @@ Map.prototype.removeTrap = function(trap){
         personManager.kill();
     }
 
+    this.traps.push(new Trap(trap.x, trap.y, allTraps['grave']));
+
     for (var i = this.traps.length; i >= 0; i--){
         if (this.traps[i] == trap){
             this.traps.splice(i, 1);
@@ -730,13 +732,32 @@ var allTraps = {
             'money': 10,
             'minions': 2
         },
+        'range': 0,
+        'damage': 0,
+        'slow': 0,
+        'fireRate': 0,
+        'walkable': true,
+        'fn': Trap,
+        'shootable': false,
+        'health': 10,
+        'killable': false
+    },
+    'grave': {
+        'name': 'Gravestone',
+        'color': '#000000',
+        'image': 'images/death.png',
+        'desc': 'This is a gravestone. For your poor dead minion. Why are you even looking at this?',
+        'cost': {
+            'money': 0,
+            'minions': 0
+        },
         'range': 2 * squareSize,
         'damage': 2,
         'slow': 0,
         'fireRate': 4,
         'walkable': false,
         'fn': PunchTrap,
-        'shootable': true,
+        'shootable': false,
         'health': 10,
         'killable': true
     }
