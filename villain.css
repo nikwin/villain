@@ -6,7 +6,7 @@
 }
 
 #game {
-    width:694px;
+    width:700px;
 }
 
 .tooltip{
@@ -48,7 +48,7 @@
 }
 
 #HUD {
-    width: 690px;
+    width: 700px;
     background-color: rgb(160, 3, 2);
     border-radius: 5px 5px 5px 5px;
     border: 1px ridge #000000;
