@@ -1258,6 +1258,14 @@ TechMode.prototype.getTouchFunction = function() {
 var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}},
                   {'currencies': {'money': 300, 'tech': 3, 'minions': 10}}];
 
+var henchpeopleString = function(string) {
+    if (game.hasModifier('henchpeople')) {
+	return string.replace(/henchmen/g, 'henchpeople').replace(/Henchmen/g, 'Henchpeople');
+    } else {
+	return string;
+    }
+}
+
 var button1Callback = function(){};
 
 var button2Callback = function(){};
@@ -1281,29 +1289,29 @@ var showPopup = function(title, text, okCallback, okText, oneCallback, oneText, 
     document.getElementById('popupMessage').style.display = 'block';
     document.getElementById('popupTitle').style.visibility = 'visible';
     document.getElementById('popupText').style.visibility = 'visible';
-    document.getElementById('popupTitle').innerHTML = title;
-    document.getElementById('popupText').innerHTML = text;
+    document.getElementById('popupTitle').innerHTML = henchpeopleString(title);
+    document.getElementById('popupText').innerHTML = henchpeopleString(text);
     var okButton = document.getElementById('okButton');
     var button1 = document.getElementById('button1');
     var button2 = document.getElementById('button2');
     if (typeof okCallback !== 'undefined' && okCallback != null) {
     	okButton.style.visibility = 'visible';
     	okButtonCallback = okCallback;
-    	okButton.value = okText;
+    	okButton.value = henchpeopleString(okText);
     } else {
     	okButton.style.visibility = 'hidden';
     }
     if (typeof oneCallback !== 'undefined' && oneCallback != null) {
     	button1.style.visibility = 'visible';
     	button1Callback = oneCallback;
-    	button1.value = oneText;
+    	button1.value = henchpeopleString(oneText);
     } else {
     	button1.style.visibility = 'hidden';
     }
     if (typeof twoCallback !== 'undefined' && twoCallback != null) {
     	button2.style.visibility = 'visible';
     	button2Callback = twoCallback;
-    	button2.value = twoText;
+    	button2.value = henchpeopleString(twoText);
     } else {
     	button2.style.visibility = 'hidden';
     }

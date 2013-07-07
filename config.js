@@ -10,7 +10,7 @@ var events = [
 	'title': 'Gender Equality', // this is referenced in villain.js. hardcoded
 	'text': 'Some of your female henchmen are displeased with the terminology and are demanding you refer to them as henchpeople.',
 	'options': [
-	    {'text': 'Fine. All genders are equal to me - AS MY SLAVES!', 'effect': 'henchpeople'}, // not implemented
+	    {'text': 'Fine. All genders are equal to me - AS MY SLAVES!', 'effect': 'henchpeople'},
 	    {'text': 'I do not have time for this.', 'effect': 'killMinions|2'}
 	]
     },
@@ -57,5 +57,5 @@ var strikeEnd = {
     ]
 };
 
-// implemented modifiers: reload, research, cheap, tempReduceCurrency, minionSalaryIncrease, reduceCurrency, killMinions, unions, strike
+// implemented modifiers: reload, research, cheap, tempReduceCurrency, minionSalaryIncrease, reduceCurrency, killMinions, unions, strike, henchpeople
 // tempReduceCurrency and reduceCurrency don't work well with minions
