@@ -840,7 +840,7 @@ var personManager = (function(){
     }
 
     var makeObituary = function(person){
-        return random.choice(obitTemplates).replace('NN', person.name);
+        return randomChoice(obitTemplates).replace(/NN/g, person.name);
     }
     
     return {
@@ -1290,6 +1290,7 @@ Game.prototype.addModifier = function(modifier) {
     if (modifier[0] === 'tempReduceCurrency') {
 	var change = modifier[1].split(':');
 	currencies.subtract(change[0], parseInt(change[1]));
+	return;
     } else if (modifier[0] === 'reduceCurrency') {
 	var change = modifier[1].split(':');
 	currencies.subtract(change[0], parseInt(change[1]));
@@ -1305,6 +1306,14 @@ Game.prototype.addModifier = function(modifier) {
 	    currModifier.push(modifier[1]);
 	    return;
 	}
+    } else if (modifier[0] === 'killMinions') {
+	var number = parseInt(modifier[1]);
+	for (var i = 0; i < number; i++) {
+	    if (personManager.people().length > 0) {
+		personManager.kill();
+	    }
+	}
+	return;
     }
     this.modifiers.push(modifier);
 }
@@ -1332,24 +1341,8 @@ Game.prototype.updateForLevel = function() {
     updateHud();
 }
 
-Game.prototype.removeTemporaryModifiers = function() {
-    var removed = 0;
-    var length = this.modifiers.length;
-    for (var i = 0; i < length; i++) {
-	var modifierID = this.modifiers[i - removed][0];
-	for (var j = 0; j < temporaryModifiers.length; j++) {
-	    if (modifierID === temporaryModifiers[j]) {
-		this.modifiers.splice(i - removed, 1);
-		removed++;
-		break;
-	    }
-	}
-    }
-}
-
 Game.prototype.incrementLevel = function() {
     this.currentLevel = min(levelSetup.length - 1, this.currentLevel + 1);
-    this.removeTemporaryModifiers();
     this.updateForLevel();
 }
 

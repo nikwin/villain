@@ -10,15 +10,11 @@ var events = {
 	'title': 'Gender Equality',
 	'text': 'Some of your female henchmen are displeased with the terminology and are demanding you refer to them as henchpeople.',
 	'options': [
-	    {'text': 'Fine. All genders are equal to me - AS MY SLAVES!', 'effect': 'henchpeople'},
-	    {'text': 'I do not have time for this.', 'effect': 'tempReduceCurrency|minions:2'} // fix me
+	    {'text': 'Fine. All genders are equal to me - AS MY SLAVES!', 'effect': 'henchpeople'}, // not implemented
+	    {'text': 'I do not have time for this.', 'effect': 'killMinions|2'}
 	]
     }
 };
 
-var temporaryModifiers = [
-    'tempReduceCurrency'
-];
-
-// implemented modifiers: reload, research, cheap, tempReduceCurrency, minionSalaryIncrease, reduceCurrency
+// implemented modifiers: reload, research, cheap, tempReduceCurrency, minionSalaryIncrease, reduceCurrency, killMinions
 // tempReduceCurrency and reduceCurrency don't work well with minions
