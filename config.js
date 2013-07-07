@@ -28,8 +28,34 @@ var events = [
 	'options': [
 	    {'text': 'Quietly smuggle in some funds from the Inscrutable Traps account.', 'effect': 'tempReduceCurrency|money:500'}
 	]
+    },
+    {
+	'title': 'Unionization', // this is referenced in villain.js. hardcoded
+	'text': 'Your henchmen are demanding better treatment and higher wages and have formed a union!',
+	'options': [
+	    {'text': 'Agree to their demands.', 'effect': 'unions'},
+	    {'text': 'Execute the instigator for his insolence!', 'effect': 'killMinions|1'}
+	]
     }
 ];
 
-// implemented modifiers: reload, research, cheap, tempReduceCurrency, minionSalaryIncrease, reduceCurrency, killMinions
+var unionEvents = [
+    {
+	'title': 'Strike',
+	'text': 'You have received notice that your henchmen are planning a strike for this afternoon!',
+	'options': [
+	    {'text': 'UNACCEPTABLE!', 'effect': 'strike'} // also hardcoded to have you have no minions for the first 5 secs of the next round, launch strike ends event
+	]
+    }
+];
+
+var strikeEnd = {
+    'title': 'Strike Ends',
+    'text': 'Very well. The insufferable minions will get what they want...',
+    'options': [
+	{'text': 'For now...', 'effect': 'minionSalaryIncrease|200'} // also hardcoded to give you your minions back and remove the strike
+    ]
+};
+
+// implemented modifiers: reload, research, cheap, tempReduceCurrency, minionSalaryIncrease, reduceCurrency, killMinions, unions, strike
 // tempReduceCurrency and reduceCurrency don't work well with minions
