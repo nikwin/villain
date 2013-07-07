@@ -252,6 +252,10 @@ var squareSize = 60;
 
 var game;
 
+var moneySpent = 0;
+var moneySpentOnLifeInsurance = 0;
+var trapsPlaced = 0;
+
 var Currencies = function() {
     this.money = 0;
     this.minions = 0;
@@ -261,6 +265,7 @@ var Currencies = function() {
 Currencies.prototype.subtract = function(currency, amount) {
     if (currency === 'money') {
 	this.money -= amount;
+	moneySpent += amount;
     } else {
 	this[currency] = max(0, this[currency] - amount);
     }
@@ -650,6 +655,7 @@ Map.prototype.getTouchFunction = function(){
                 that.squares.splice(i, 1);
                 that.traps.push(makeTrap(square.basedraw.x, square.basedraw.y, getTrap()));
 		that.selectedTrap = that.traps[that.traps.length - 1];
+		trapsPlaced++;
 		return;
             }
         }
@@ -1250,7 +1256,9 @@ GameLevel.prototype.update = function(interval){
 };
 
 var ResultsMode = function(victory) {
-    game.incrementLevel();
+    if (victory) {
+	game.incrementLevel();
+    }
     resetMinions();
     this.victory = victory;
     this.drawScreen(victory);
@@ -1279,7 +1287,12 @@ ResultsMode.prototype.drawScreen = function(victory) {
 	var reward = levelSetup[game.currentLevel]['currencies']['money'];
 	ctx.fillText('You get ' + reward.toString() + ' dollars.', canvas.width / 2, canvas.height / 2 + 20);
     } else {
-	ctx.fillText('You lose.', canvas.width / 2, canvas.height / 2);
+	ctx.fillText('You lose.', canvas.width / 2, canvas.height / 2 - 100);
+	ctx.fillText('You got to level ' + (game.currentLevel + 1) + '.', canvas.width / 2, canvas.height / 2 - 60);
+	ctx.fillText('You spent ' + moneySpent + ' dollars.', canvas.width / 2, canvas.height / 2 - 20);
+	ctx.fillText('You spent ' + moneySpentOnLifeInsurance + ' dollars on benefits.', canvas.width / 2, canvas.height / 2 + 20);
+	ctx.fillText('You placed ' + trapsPlaced + ' defenses.', canvas.width / 2, canvas.height / 2 + 60);
+	ctx.fillText(personManager.obits().length + henchpeopleString(' henchmen died in your service.'), canvas.width / 2, canvas.height / 2 + 100);
     }
 }
 
@@ -1608,6 +1621,7 @@ Game.prototype.incrementLevel = function() {
     this.currentLevel = min(levelSetup.length - 1, this.currentLevel + 1);
     this.updateForLevel();
     currencies.money -= personManager.totalCost();
+    moneySpentOnLifeInsurance += personManager.lifeInsurance();
 }
 
 Game.prototype.update = function(interval) {
