@@ -47,8 +47,73 @@
 
 }
 
+/* apply to elements, containing a data-title attribute */
+[data-title] {
+    position: relative;
+    padding: 0;
+}
+
+[data-title]::before,
+[data-title]::after {
+    position: absolute;
+    left: 50%;
+    z-index: 5;
+    opacity: 0;
+    visibility: hidden;
+    background: #ffffab;
+
+
+    -moz-transition: opacity 200ms 50ms linear;
+    -webkit-transition: opacity 200ms 50ms linear;
+    -ms-transition: opacity 200ms 50ms linear;
+    -o-transition: opacity 200ms 50ms linear;
+    transition: opacity 200ms 50ms linear;
+}
+
+[data-title]:hover::before,
+[data-title]:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* the tooltip */
+[data-title]::before {
+    content: attr(data-title);
+    width: 120px;
+    height: 30px;
+    padding: 4px;
+    margin: -40px 0px 0 -65px;
+    font: normal 11px/16px Arial, Sans-serif;
+    color: #000000;
+    cursor: default;
+    border: 1px solid black;
+
+
+}
+
+/* the pointer */
+[data-title]::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    margin: -24px 0 0 -4px;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.short [data-title]::after {
+    margin: 10px 0 0 -4px;
+}
+
+
 #HUD {
-    width: 700px;
+    width: 704px;
     background-color: rgb(160, 3, 2);
     border-radius: 5px 5px 5px 5px;
     border: 1px ridge #000000;

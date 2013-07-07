@@ -9,7 +9,7 @@
       <div id="game">
         <div id = "HUD">
             <span id = "level">
-                <span id = "levelIcon">Round</span>
+                <span id = "levelIcon">Wave</span>
                 <span id = "levelNumber">LEVEL</span>
             </span>
             <span id = "money">
@@ -31,20 +31,20 @@
         <div id="trapWindow">
             <form id="traps">
               <input type="radio" id="trap1" name="traps" value="lava pit" checked/ >
-              <label for="trap1">Lava Pit</label>
+              <label for="trap1" data-title="Lava well enough alone.">Lava Pit</label>
               <input type="radio" id="trap2" name="traps" value="turret" />
-              <label for="trap2">Turret</label>
+              <label for="trap2" data-title="A standard turret, useful for shooting things.">Gun Turret</label>
               <input type="radio" id="trap3" name="traps" value="punch" />
-              <label for="trap3">Punch Turret</label>
+              <label for="trap3" data-title="Knock that hero back! He'll never see it coming.">Punch Turret</label>
             </form>
             <input onclick="buttonPress()" type="button" value="Send Wave" id="sendButton"></input>
         </div>
       </div>
       <div id="results"></div>
-      <div class="tooltip">
+      <div class="tooltip" id = "tip">
           <div class="tooltip-arrow"></div>
           <div class="tooltip-inner">TEST CONTENT</div>
       </div>
       <script type="text/javascript" src="villain.js"></script>
-    </body>
+     </body>
 </html>

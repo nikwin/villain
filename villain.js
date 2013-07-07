@@ -41,7 +41,6 @@ var html = document.body.parentNode;
 htmlTop = html.offsetTop;
 htmlLeft = html.offsetLeft;
 
-
 var getPos = function(e) {
     var element = canvas, offsetX = 0, offsetY = 0, mx, my;
     if (element.offsetParent !== undefined) {
