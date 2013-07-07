@@ -541,7 +541,7 @@ Map.prototype.draw = function(){
     }
     var selectedTrap = this.selectedTrap;
     if (selectedTrap !== null) {
-	ctx.fillStyle = "#ff0000";
+	ctx.fillStyle = 'rgba(200,40,40,.2)';
 	ctx.fillRect(selectedTrap.basedraw.x, selectedTrap.basedraw.y, selectedTrap.basedraw.size, selectedTrap.basedraw.size);
     }
 };
