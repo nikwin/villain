@@ -851,15 +851,17 @@ Hero.prototype.snapSquare = function(direction){
             basey + direction[1] * squareSize];
 };
 
+Hero.prototype.size = 40;
+
 Hero.prototype.getRect = function(pos){
-    return [pos[0], pos[1], 20, 20];
+    return [pos[0], pos[1], this.size, this.size];
 };
 
 var heroImage = new Image();
 heroImage.src = 'images/hero.png';
 
 Hero.prototype.draw = function(){
-    ctx.drawImage(heroImage,this.x,this.y,60,60);
+    ctx.drawImage(heroImage,this.x - 12, this.y - 16);
     if (this.wasShot > 0){
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
