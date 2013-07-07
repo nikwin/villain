@@ -442,6 +442,7 @@ var PunchTrap = function(x, y, props){
     this.nextFire = 0;
     this.animating = 0;
     this.punch = null;
+    this.wasShot = 0;
 }
 
 PunchTrap.prototype.isInRange = Trap.prototype.isInRange;
@@ -456,6 +457,8 @@ PunchTrap.prototype.update = function(interval, hero){
     if (this.punch && this.punch.update(interval, hero)){
         this.punch = null;
     }
+    this.wasShot -= interval;
+    return this.health <= 0;
 };
 
 PunchTrap.prototype.draw = function() {
@@ -463,6 +466,14 @@ PunchTrap.prototype.draw = function() {
     if (this.punch){
         this.punch.basedraw.draw();
     }
+
+    if (this.wasShot > 0){
+        ctx.fillStyle = '#000000';
+        for (var i = 0; i < 3; i ++){
+            ctx.fillRect(Math.random() * 60 + this.x, Math.random() * 60 + this.y, 3, 3);
+        }
+    }
+    
 };
 
 var makeTrap = function(x, y, props){
