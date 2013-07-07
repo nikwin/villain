@@ -273,6 +273,9 @@ td {
 #popupTitle {
     text-align:center;
     font-weight: 900;
+    font-size: 20px;
+    padding-top: 2px;
+    padding-bottom: 3px;
     width: 100%;
     border-bottom: 1px solid black;
 }

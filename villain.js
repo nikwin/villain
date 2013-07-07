@@ -641,7 +641,7 @@ Map.prototype.getTouchFunction = function(){
 		var trap = getTrap();
 		for (var currency in trap['cost']) {
 		    if (currencies[currency] < Math.floor(discount * trap['cost'][currency])) {
-			alert('you are too poor. get more ' + currency);
+			showPopup('Out Of Funds', 'You need more ' + currency + '.', null, null, function(){}, 'Okay');
 			return;
 		    }
 		}
@@ -1263,7 +1263,7 @@ var ResultsMode = function(victory) {
     // waveButtonPress = this.makePressFunction();
     this.isFinished = false;
     bindHandler.clear();
-    bindHandler.bindFunction(this.makeFinishScreen());
+    // bindHandler.bindFunction(this.makeFinishScreen());
 };
 
 ResultsMode.prototype.makeFinishScreen = function(){
@@ -1276,14 +1276,13 @@ ResultsMode.prototype.makeFinishScreen = function(){
 ResultsMode.prototype.drawScreen = function(victory) {
     var heroString = document.getElementById('hero');
     heroString.innerHTML = '';
-    clearScreen();
     ctx.font = '20pt Arial';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'black';
     if (victory) {
-
+	var that = this;
 	var reward = levelSetup[game.currentLevel]['currencies']['money'];
-        showPopup('VICTORY',levelSetup[game.currentLevel].objective + ' has surrendered to your awesome might!<br />Funds Extorted: ' + reward.toString() + '!',function(){},'Excellent');
+        showPopup('VICTORY',levelSetup[game.currentLevel - 1].objective + ' has surrendered to your awesome might!<br />Funds Extorted: ' + reward.toString() + '!',function(){that.isFinished = true;},'Excellent');
     } else {
 	ctx.fillText('You lose.', canvas.width / 2, canvas.height / 2 - 100);
 	ctx.fillText('You got to level ' + (game.currentLevel + 1) + '.', canvas.width / 2, canvas.height / 2 - 60);
