@@ -366,6 +366,7 @@ var Trap = function(x, y, props){
     this.nextFire = 0;
     this.shots = [];
     this.wasShot = 0;
+    this.shooting = 0;
 };
 
 Trap.prototype.isInRange = function(x, y) {
@@ -381,6 +382,9 @@ Trap.prototype.fire = function(hero, time) {
     this.nextFire = 1 / this.fireRate;
     this.shots.push(new Shot(this.basedraw.x, this.basedraw.y,
                              this.damage, hero));
+    this.shooting = 0.3;
+    this.basedraw.rotation = 0;
+    this.delRot = 0.1;
 }
 
 Trap.prototype.update = function(interval, hero) {
@@ -391,6 +395,24 @@ Trap.prototype.update = function(interval, hero) {
         }
     }
     this.wasShot -= interval;
+
+    if (this.shooting > 0){
+        this.basedraw.rotation += this.delRot * interval;
+        if (this.basedraw.rotation > 0.6 || this.basedraw.rotation < -0.6){
+            this.delRot *= -1;
+            if (this.basedraw.rotation > .6){
+                this.basedraw.rotation = .6;
+            }
+            if (this.basedraw.rotation < -0.6){
+                this.basedraw.rotation = -0.6;
+            }
+        }
+    }
+    else{
+        this.basedraw.rotation = 0;
+    }
+    
+
     return (this.health <= 0)
 }
 
@@ -685,7 +707,7 @@ var allTraps = {
 	'walkable': false,
         'fn': Trap,
         'shootable': true,
-        'health': 10
+        'health': 40
     },
     'punch': {
         'name': 'Anti-Magnet',
@@ -718,15 +740,22 @@ var getTrap = function() {
 
 var waveButtonPress = function(){};
 
-var SetupLevel = function() {
+var resetMinions = function() {
     if (game.hasModifier('strike')) {
 	currencies.minions = 0;
     } else {
 	currencies.minions = personManager.people().length;
     }
+}
+
+var SetupLevel = function() {
+    resetMinions();
     this.map = new Map();
     this.active = true;
     waveButtonPress = this.makePressFunction();
+    if (game.currentLevel > 0 && Math.random() < .5) {
+    	showEventPopup(events[Math.floor(Math.random() * events.length)]);
+    }
 };
 
 SetupLevel.prototype.draw = function(){
@@ -1105,10 +1134,10 @@ GameLevel.prototype.changeModeForLevelEnd = function(victory) {
 
 GameLevel.prototype.checkLevelEnded = function() {
     if (containsPos(this.villain.basedraw.getRect(), [this.hero.x + 10, this.hero.y + 10])) {
-	this.changeModeForLevelEnd(true);
+	this.changeModeForLevelEnd(false);
     }
     if (this.hero.health <= 0) {
-	this.changeModeForLevelEnd(false);
+	this.changeModeForLevelEnd(true);
     }
 }
 
@@ -1135,14 +1164,13 @@ GameLevel.prototype.update = function(interval){
 
 var ResultsMode = function(victory) {
     game.incrementLevel();
+    resetMinions();
+    this.victory = victory;
     this.drawScreen(victory);
     // waveButtonPress = this.makePressFunction();
     this.isFinished = false;
     bindHandler.clear();
     bindHandler.bindFunction(this.makeFinishScreen());
-    if (Math.random() < .5) {
-    	showEventPopup(events[Math.floor(Math.random() * events.length)]);
-    }
 };
 
 ResultsMode.prototype.makeFinishScreen = function(){
@@ -1159,19 +1187,23 @@ ResultsMode.prototype.drawScreen = function(victory) {
     ctx.font = '20pt Arial';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'black';
-    var text;
     if (victory) {
-	text = 'The hero got to you but you escaped! Huzzah!';
+	ctx.fillText('You win!', canvas.width / 2, canvas.height / 2 - 20);
+	var reward = levelSetup[game.currentLevel]['currencies']['money'];
+	ctx.fillText('You get ' + reward.toString() + ' dollars.', canvas.width / 2, canvas.height / 2 + 20);
     } else {
-	text = 'You killed the hero. Your life is now meaningless.';
+	ctx.fillText('You lose.', canvas.width / 2, canvas.height / 2);
     }
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
 
 ResultsMode.prototype.update = function(interval) {
-    if (this.isFinished){
-        game.currentMode = new ManagerLevel();
-    }
+    if (this.isFinished) {
+	if (this.victory) {
+            game.currentMode = new ManagerLevel();
+	} else {
+	    location.reload();
+	}
+    } 
 }
 
 ResultsMode.prototype.draw = function() {
@@ -1445,6 +1477,7 @@ Game.prototype.addModifier = function(modifier) {
 		personManager.kill();
 	    }
 	}
+	resetMinions();
 	return;
     } else if (modifier[0] === 'minionSalaryIncrease') {
 	if (game.hasModifier('minionSalaryIncrease')) {
