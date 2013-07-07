@@ -1282,12 +1282,7 @@ ResultsMode.prototype.drawScreen = function(victory) {
     ctx.fillStyle = 'black';
     if (victory) {
 
-	//ctx.fillText('You win!', canvas.width / 2, canvas.height / 2 - 20);
-    //ctx.fillText(levelSetup[game.currentLevel].objective, canvas.width / 2, canvas.height / 2 - 50);
-	//ctx.fillText('has surrendered to your awesome might.', canvas.width / 2, canvas.height / 2 - 20);
-
 	var reward = levelSetup[game.currentLevel]['currencies']['money'];
-	//ctx.fillText('You get ' + reward.toString() + ' dollars.', canvas.width / 2, canvas.height / 2 + 20);
         showPopup('VICTORY',levelSetup[game.currentLevel].objective + ' has surrendered to your awesome might!<br />Funds Extorted: ' + reward.toString() + '!',function(){},'Excellent');
     } else {
 	ctx.fillText('You lose.', canvas.width / 2, canvas.height / 2 - 100);
