@@ -259,6 +259,14 @@ var Currencies = function() {
     this.tech = 0;
 }
 
+Currencies.prototype.subtract = function(currency, amount) {
+    if (currency === 'money') {
+	this.money -= amount;
+    } else {
+	this[currency] = max(0, this[currency] - amount);
+    }
+}
+
 var currencies = new Currencies();
 
 var BaseDraw = function(x, y, color, image){
@@ -568,7 +576,7 @@ Map.prototype.getTouchFunction = function(){
 		    }
 		}
 		for (var currency in trap['cost']) {
-		    currencies[currency] -= Math.floor(discount * trap['cost'][currency]);
+		    currencies.subtract(currency, Math.floor(discount * trap['cost'][currency]));
 		}
                 var square = that.squares[i];
                 that.squares.splice(i, 1);
@@ -835,7 +843,7 @@ var personManager = (function(){
         'hire': function(person){
             if (currencies.money >= getPersonSalary(person)){
                 people.push(person);
-                currencies.money -= getPersonSalary(person);
+		currencies.subtract('money', getPersonSalary(person));
                 return true;
             }
             return false;
@@ -1132,7 +1140,7 @@ TechMode.prototype.getTouchFunction = function() {
 		    return;
 		}
 		if (!game.hasModifier(techElement.tech['id'])) {
-		    currencies['tech'] -= techElement.tech['cost'];
+		    currencies.subtract('tech', techElement.tech['cost']);
 		    game.addModifier([techElement.tech['id']]);
 		}
             }
@@ -1249,10 +1257,24 @@ Game.prototype.hasModifier = function(modifier) {
 Game.prototype.addModifier = function(modifier) {
     if (modifier[0] === 'tempReduceCurrency') {
 	var change = modifier[1].split(':');
-	currencies[change[0]] = max(currencies[change[0]] - parseInt(currencies[change[1]]), 0);
+	currencies.subtract(change[0], parseInt(change[1]));
+    } else if (modifier[0] === 'reduceCurrency') {
+	var change = modifier[1].split(':');
+	currencies.subtract(change[0], parseInt(change[1]));
+	if (game.hasModifier('reduceCurrency')) {
+	    var currModifier = game.getModifier('reduceCurrency');
+	    for (var i = 1; i < currModifier.length; i++) {
+		var currChange = currModifier[i].split(':');
+		if (currChange[0] === change[0]) {
+		    currModifier[i] = change[0] + ':' + (parseInt(change[1]) + parseInt(currChange[1])).toString();
+		    return;
+		}
+	    }
+	    currModifier.push(modifier[1]);
+	    return;
+	}
     }
     this.modifiers.push(modifier);
-    console.log(this.modifiers);
 }
 
 Game.prototype.initialize = function() {
@@ -1268,6 +1290,13 @@ Game.prototype.updateForLevel = function() {
     } else {
 	currencies.tech += level['currencies']['tech'];
     }	
+    if (this.hasModifier('reduceCurrency')) {
+	var modifier = this.getModifier('reduceCurrency');
+	for (var i = 1; i < modifier.length; i++) {
+	    var change = modifier[i].split(':');
+	    currencies.subtract(change[0], parseInt(change[1]));
+	}
+    }
     updateHud();
 }
 
