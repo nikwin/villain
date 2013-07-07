@@ -49,6 +49,7 @@
     color: #000000;
     cursor: default;
     border: 1px solid black;
+    opacity: 1;
 
 
 }
@@ -184,7 +185,6 @@ img.costIcon {
     color: #FFFFFF;
     vertical-align: middle;
     position:relative;
-    word-wrap: break-word;
 }
 
 input[type=radio] {
@@ -212,6 +212,12 @@ input[type=radio] + label {
 input[type=radio]:checked + label {
     background-color: #CCCCCC;
     border: 1px solid white;
+}
+
+input[type=radio]:disabled + label {
+    background: rgba(50,50,50,.4);
+    color: rgba(0,0,0,.4);
+    border: 1px solid rgba(50,50,50,.4);
 }
 
 #sendButton {

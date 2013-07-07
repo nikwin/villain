@@ -40,6 +40,15 @@
               <label for="trap3" data-title="Knock that hero back! He'll never see it coming.">Anti-<br/>Magnet</label>
               <input type="radio" id="trap4" name="traps" value="slow" onclick="showTrapInfo('trap4')"/>
               <label for="trap4" data-title="Slow of foot to match slow of thought.">Mr Sleet</label>
+               <!-- You probably shouldn't wait for these traps... -->
+                <input type="radio" disabled id="trap5" name="traps" value="5" onclick="showTrapInfo('trap5')"/>
+                <label for="trap5" class='disTrap' data-title="LOCKED: Fry your foes!">Zap Rod</label>
+                <input type="radio" disabled id="trap6" name="traps" value="5" onclick="showTrapInfo('trap6')"/>
+                <label for="trap6" class='disTrap' data-title="LOCKED: This time, with aiming.">Super Guard</label>
+                <input type="radio" disabled id="trap7" name="traps" value="5" onclick="showTrapInfo('trap7')"/>
+                <label for="trap7" class='disTrap' data-title="LOCKED: When a regular fence just won't do.">Laser Fence</label>
+                <input type="radio" disabled id="trap8" name="traps" value="5" onclick="showTrapInfo('trap8')"/>
+                <label for="trap8" class='disTrap' data-title="LOCKED: Don't all cows explode?">Cow Mine</label>
             </form>
             <input onclick="waveButtonPress()" type="button" value="Send Wave" id="sendButton" />
         </div>
