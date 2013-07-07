@@ -1152,23 +1152,40 @@ var okButtonCallback = function(){};
 var hidePopup = function() {
     document.getElementById('popupBlocker').style.visibility = 'hidden';
     document.getElementById('popupMessage').style.visibility = 'hidden';
+    document.getElementById('okButton').style.visibility = 'hidden';
+    document.getElementById('button1').style.visibility = 'hidden';
+    document.getElementById('button2').style.visibility = 'hidden';
 }
 
 var showPopup = function(title, text, okCallback, okText, oneCallback, oneText, twoCallback, twoText) {
-    // document.getElementById('popupBlocker').style.visibility = 'visible';
-    // document.getElementById('popupMessage').style.visibility = 'visible';
-    // document.getElementById('popupTitle').innerHTML = title;
-    // document.getElementById('popupText').innerHTML = text;
-    // var okButton = document.getElementById('okButton');
-    // var button1 = document.getElementById('button1');
-    // if (typeof okCallback !== 'undefined' && okCallback != null) {
-    // 	okButton.style.visibility = 'visible';
-    // 	okButtonCallback = okCallback;
-    // 	okButton.value = okText;
-    // } else {
-    // 	okButton.style.visibility = 'hidden';
-    // }
-    // WIP
+    document.getElementById('popupBlocker').style.visibility = 'visible';
+    document.getElementById('popupMessage').style.visibility = 'visible';
+    document.getElementById('popupTitle').innerHTML = title;
+    document.getElementById('popupText').innerHTML = text;
+    var okButton = document.getElementById('okButton');
+    var button1 = document.getElementById('button1');
+    var button2 = document.getElementById('button2');
+    if (typeof okCallback !== 'undefined' && okCallback != null) {
+    	okButton.style.visibility = 'visible';
+    	okButtonCallback = okCallback;
+    	okButton.value = okText;
+    } else {
+    	okButton.style.visibility = 'hidden';
+    }
+    if (typeof oneCallback !== 'undefined' && oneCallback != null) {
+    	button1.style.visibility = 'visible';
+    	button1Callback = oneCallback;
+    	button1.value = oneText;
+    } else {
+    	button1.style.visibility = 'hidden';
+    }
+    if (typeof twoCallback !== 'undefined' && twoCallback != null) {
+    	button2.style.visibility = 'visible';
+    	button2Callback = twoCallback;
+    	button2.value = twoText;
+    } else {
+    	button2.style.visibility = 'hidden';
+    }
 }
 
 var button1Press = function() {
