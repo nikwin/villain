@@ -654,6 +654,7 @@ var getTrap = function() {
 var waveButtonPress = function(){};
 
 var SetupLevel = function() {
+    currencies.minions = personManager.people().length;
     this.map = new Map();
     this.active = true;
     waveButtonPress = this.makePressFunction();
@@ -804,13 +805,6 @@ Hero.prototype.draw = function(){
     }
 };
 
-var getRandomPersonProps = function(){
-    return {
-        'name': 'a',
-        'salary': 100
-    };
-}
-
 var hireButtonPress = function(){};
 
 var fireButtonPress = function(){
@@ -825,6 +819,44 @@ var schemeButtonPress = function(){
 
 var hirePerson = function(){};
 
+var personManager = (function(){
+    var people = [];
+
+
+    var getRandomPerson = function(){
+        return {
+            'name': 'a',
+            'salary': 10
+        };
+    }
+
+    for (var i = 0; i < 10; i++){
+        people.push(getRandomPerson());
+    }
+    
+    return {
+        'getRandomPerson': getRandomPerson,
+        'generatePotentialPeople': function(n){
+            var potentials = [];
+            for (var i =0; i < n; i++){
+                potentials.push(getRandomPerson());
+            }
+            return potentials;
+        },
+        'hire': function(person){
+            if (currencies.money >= person.salary){
+                people.push(person);
+                currencies.money -= person.salary;
+                return true;
+            }
+            return false;
+        },
+        'people': function(){
+            return people;
+        }
+    }
+})();
+
 var homeButtonPress = function(){
     document.getElementById('game').style.display = 'none';
     document.getElementById('manager').style.display = 'block';
@@ -834,10 +866,8 @@ var homeButtonPress = function(){
 var ManagerLevel = function(){
     homeButtonPress();
     this.running = true;
-    this.potentials = [];
-    for (var i =0; i < 5; i++){
-        this.potentials.push(getRandomPersonProps());
-    }
+    this.potentials = personManager.generatePotentialPeople(5);
+    
     this.hiredPeople = [];
     var that = this;
     schemeButtonPress = function(){
@@ -847,7 +877,8 @@ var ManagerLevel = function(){
     hireButtonPress = function(){
         document.getElementById('manager').style.display = 'none';
         document.getElementById('hireList').style.display = 'block';
-        var html = '<table><tr><th>Name</th><th>Salary</th><th>Actions</th></tr>';
+        var html = 'People: ' + personManager.people().length + ' Money: ' + currencies.money;
+        html += '<table><tr><th>Name</th><th>Salary</th><th>Actions</th></tr>';
         for (var i = 0; i < that.potentials.length; i++){
             var props = that.potentials[i]
             html += '<tr><td>'+props.name+'</td><td>'+props.salary+'</td><td><input onclick=\"hirePerson(' + i + ')\" type=\"button\" value=\"Hire\" /></td></tr>';
@@ -858,7 +889,7 @@ var ManagerLevel = function(){
     };
     hirePerson = function(i){
         var person = that.potentials[i];
-        that.hiredPeople.push(person);
+        personManager.hire(person);
         that.potentials.splice(i, 1);
         hireButtonPress();
     };
@@ -1094,7 +1125,8 @@ TechMode.prototype.getTouchFunction = function() {
     };
 }
 
-var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}}, {'currencies': {'money': 300, 'tech': 3, 'minions': 10}}];
+var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}},
+                  {'currencies': {'money': 300, 'tech': 3, 'minions': 10}}];
 
 var Game = function() {
     this.currentLevel = 0;
@@ -1123,7 +1155,6 @@ Game.prototype.updateForLevel = function() {
     } else {
 	currencies.tech += level['currencies']['tech'];
     }	
-    currencies.minions += level['currencies']['minions'];
     updateHud();
 }
 
