@@ -143,3 +143,11 @@ input[type=radio]:checked + label {
     background-color: #f86c43;
     border: 1px solid white;
 }
+
+table {
+    border: 1px solid black;
+}
+
+td {
+    border: 1px solid black;
+}

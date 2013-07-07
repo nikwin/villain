@@ -652,12 +652,12 @@ var getTrap = function() {
     }
 };
 
-var buttonPress = function(){};
+var waveButtonPress = function(){};
 
 var SetupLevel = function() {
     this.map = new Map();
     this.active = true;
-    buttonPress = this.makePressFunction();
+    waveButtonPress = this.makePressFunction();
 };
 
 SetupLevel.prototype.draw = function(){
@@ -690,7 +690,7 @@ var Hero = function(x, y){
     this.forcedVelocity = [0, 0];
 };
 
-Hero.prototype.speed = 120;
+Hero.prototype.speed = 400;
 
 Hero.prototype.update = function(interval, allThings){
     this.wasShot -= interval;
@@ -794,14 +794,89 @@ Hero.prototype.getRect = function(pos){
     return [pos[0], pos[1], 20, 20];
 };
 
-var heroImage = new Image(); heroImage.src = 'images/hero.png';
-var heroPattern = ctx.createPattern(heroImage,'no-repeat');
+var heroImage = new Image();
+heroImage.src = 'images/hero.png';
 
 Hero.prototype.draw = function(){
     ctx.drawImage(heroImage,this.x,this.y,20,20);
     if (this.wasShot > 0){
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
+    }
+};
+
+var getRandomPersonProps = function(){
+    return {
+        'name': 'a',
+        'salary': 100
+    };
+}
+
+var hireButtonPress = function(){};
+
+var fireButtonPress = function(){
+    alert("They're unionized.");
+};
+
+var expensesButtonPress = function(){
+};
+
+var schemeButtonPress = function(){
+};
+
+var hirePerson = function(){};
+
+var homeButtonPress = function(){
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('manager').style.display = 'block';
+    document.getElementById('hireList').style.display = 'none';
+};
+
+var ManagerLevel = function(){
+    homeButtonPress();
+    this.running = true;
+    this.potentials = [];
+    for (var i =0; i < 5; i++){
+        this.potentials.push(getRandomPersonProps());
+    }
+    this.hiredPeople = [];
+    var that = this;
+    schemeButtonPress = function(){
+        that.running = false;
+    }
+    
+    hireButtonPress = function(){
+        document.getElementById('manager').style.display = 'none';
+        document.getElementById('hireList').style.display = 'block';
+        var html = '<table><tr><th>Name</th><th>Salary</th><th>Actions</th></tr>';
+        for (var i = 0; i < that.potentials.length; i++){
+            var props = that.potentials[i]
+            html += '<tr><td>'+props.name+'</td><td>'+props.salary+'</td><td><input onclick=\"hirePerson(' + i + ')\" type=\"button\" value=\"Hire\" /></td></tr>';
+        }
+        html += '</table>';
+        html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+        document.getElementById('hireList').innerHTML = html;
+    };
+    hirePerson = function(i){
+        var person = that.potentials[i];
+        that.hiredPeople.push(person);
+        that.potentials.splice(i, 1);
+        hireButtonPress();
+    };
+    schemeButtonPress = function(){
+        that.running = false;
+    }
+};
+
+ManagerLevel.prototype.draw = function(){
+};
+
+ManagerLevel.prototype.update = function(){
+    if (!this.running){
+        document.getElementById('game').style.display = 'block';
+        document.getElementById('manager').style.display = 'none';
+        document.getElementById('hireList').style.display = 'none'
+        game.currentMode = new SetupLevel();
     }
 };
 
@@ -845,10 +920,22 @@ GameLevel.prototype.update = function(interval){
 var ResultsMode = function(victory) {
     game.incrementLevel();
     this.drawScreen(victory);
-    buttonPress = this.makePressFunction();
+    waveButtonPress = this.makePressFunction();
+    this.isFinished = false;
+    bindHandler.clear();
+    bindHandler.bindFunction(this.makeFinishScreen());
+};
+
+ResultsMode.prototype.makeFinishScreen = function(){
+    var that = this;
+    return function(){
+        that.isFinished = true;
+    }
 }
 
 ResultsMode.prototype.drawScreen = function(victory) {
+    var heroString = document.getElementById('hero');
+    heroString.innerHTML = '';
     clearScreen();
     ctx.font = '20pt Arial';
     ctx.textAlign = 'center';
@@ -863,6 +950,9 @@ ResultsMode.prototype.drawScreen = function(victory) {
 }
 
 ResultsMode.prototype.update = function(interval) {
+    if (this.isFinished){
+        game.currentMode = new ManagerLevel();
+    }
 }
 
 ResultsMode.prototype.draw = function() {
@@ -915,7 +1005,7 @@ TechElement.prototype.connectPoint = function() {
 
 var TechMode = function() {
     clearScreen();
-    buttonPress = this.makePressFunction();
+    waveButtonPress = this.makePressFunction();
     this.techElements = [];
     this.generateTechElements();
     bindHandler.bindFunction(this.getTouchFunction());
@@ -1049,10 +1139,9 @@ Game.prototype.update = function(interval) {
 
 Game.prototype.draw = function(draw) {
     this.currentMode.draw();
-}
+};
 
 var getFrameFunctions = function(){
-    var update = function(){}, draw=function(){};
     game = new Game();
     game.initialize();
     return {
