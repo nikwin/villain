@@ -244,3 +244,63 @@ td {
  left: 175px;
  visibility: visible;
 }
+
+/* HR Functions below here! */
+#manager {
+ background-color: #FFFFFF;
+ width: 700px;
+ height: 400px;
+ border: 2px #4a4a4a solid;
+ display: none;
+}
+
+.HRHeader {
+ background-color: #050589;
+ color: #FFFFFF;
+ height: 20px;
+ text-align: center;
+}
+
+.HRIcon {
+    vertical-align:text-top;
+    padding-bottom:3px;
+    padding-top: 0px;
+}
+
+.HRButton {
+ border: 1px solid white;
+ background: none;
+ box-shadow: none;
+}
+
+.HRButton:disabled {
+  opacity: .3;
+}
+
+.HRButton:active {
+    border: 1px solid black;
+}
+
+.HRButton:active > div {
+ color: #FFFFFF;
+ background-color: #050589;
+}
+
+.HRText {
+ font-weight: 400;
+ font-family: sans-serif;
+ font-size: 15px;
+}
+
+.HRText:active {
+ color: white;
+ background-color: #050589;
+}
+
+#minus {
+    float: left;
+}
+
+#arrows {
+    float:right;
+}
