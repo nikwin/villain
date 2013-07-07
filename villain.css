@@ -186,7 +186,7 @@ td {
     background-color: #000000;
     top: 0;
     opacity: 0.4;
-    visibility:hidden;
+    visibility:visible;
 }
 
 #popupMessage{
@@ -199,7 +199,7 @@ td {
     z-index: 200;
     top: 200px;
     left: 135px;
-    visibility:hidden;
+    visibility:visible;
 }
 
 .popupButton {
@@ -208,7 +208,7 @@ td {
     height: 30px;
     background-color: #f86c43;
     border: 1px solid white;
-    width: 100px;
+    width: 120px;
 }
 
 #popupTitle {
@@ -228,10 +228,12 @@ td {
 
 #button1 {
  left: 40px;
+ visibility: hidden;
 }
 
 #button2{
  right: 40px;
+ visibility: hidden;
 }
 
 #okButton {
