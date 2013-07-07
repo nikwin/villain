@@ -724,6 +724,7 @@ var allTraps = {
     'punch': {
         'name': 'Anti-Magnet',
         'color': '#aaaaaa',
+        'image': 'images/magnet.png',
         'desc': 'This ingenious trap will knock any hero back a few paces. Perfect for keeping them in range of your most highly trained guards.',
         'cost': {
             'money': 10,
