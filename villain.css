@@ -184,6 +184,7 @@ img.costIcon {
     color: #FFFFFF;
     vertical-align: middle;
     position:relative;
+    word-wrap: break-word;
 }
 
 input[type=radio] {

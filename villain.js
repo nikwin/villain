@@ -520,7 +520,7 @@ var showTrapInfo = function(selectedTrap) {
     var selectedString = document.getElementById('selected');
     var trap = getTrap();
     if (typeof selectedTrap !== 'undefined' && selectedTrap !== null) {
-        selectedString.innerHTML = "<div id='trapStats'>" + trap.name + ' -- Range: ' + trap.range + ', Damage: ' + trap.damage + ', Speed: ' + trap.fireRate;
+        selectedString.innerHTML = "<div id='trapStats'>" + trap.name + ' -- Range: ' + trap.range + ', Damage: ' + trap.damage + ', Speed: ' + trap.fireRate + ', Slow: ' + trap.slow;
         selectedString.innerHTML = selectedString.innerHTML + "<div id='trapCost'>Cost: "+ moneyString + trap.cost['money'] + minionString + trap.cost['minions'] + "</div></div>";
         selectedString.innerHTML = selectedString.innerHTML + "<div id='trapDesc'>" + trap.desc + "</div>";
     }
@@ -653,7 +653,7 @@ Map.prototype.removeTrap = function(trap){
 
 var allTraps = {
     'lava pit': {
-	'name': 'Wall',
+	'name': 'Lava Pit',
         'color': '#ffff00',
         'image': 'images/lava.png',
         'desc': 'A standard issue lava pit. Useful for politely encouraging a wandering hero to not walk here. NOTE: Heroes have been known to break their way through any and all obstacles when trapped.',
@@ -664,12 +664,13 @@ var allTraps = {
 	'range': 0,
 	'damage': 0,
 	'fireRate': 0,
+    'slow': 0,
 	'walkable': false,
         'fn': Trap,
         'health': 100
     },
     'turret': {
-	'name': 'Turret',
+	'name': 'Guard',
         'color': '#cccccc',
         'image': 'images/turret.png',
         'desc': 'What you have here is a minion with a gun. Surprisingly effective against low-ranked heroes, though your more skilled hero always seems to not get hit by your regular guards.',
@@ -680,13 +681,14 @@ var allTraps = {
 	'range': 3 * squareSize,
 	'damage': 5,
 	'fireRate': 2,
+    'slow': 0,
 	'walkable': false,
         'fn': Trap,
         'shootable': true,
         'health': 10
     },
     'punch': {
-        'name': 'Punchy',
+        'name': 'Anti-Magnet',
         'color': '#aaaaaa',
         'desc': 'This ingenious trap will knock any hero back a few paces. Perfect for keeping them in range of your most highly trained guards.',
         'cost': {
@@ -696,6 +698,7 @@ var allTraps = {
         'range': 2 * squareSize,
         'damage': 2,
         'fireRate': 2,
+        'slow': 0,
         'walkable': false,
         'fn': PunchTrap,
         'shootable': true,
