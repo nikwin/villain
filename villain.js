@@ -391,7 +391,6 @@ Trap.prototype.fire = function(hero, time) {
 	return;
     }
     this.nextFire = 1 / this.fireRate;
-    console.log(this.slow);
     this.shots.push(new Shot(this.basedraw.x, this.basedraw.y,
                              this.damage, hero, this.slow));
     this.shooting = 0.3;
@@ -546,7 +545,7 @@ var updateHud = function(hero, selectedTrap) {
     } else {	
 	var heroString = document.getElementById('hero'); heroString.innerHTML = '';
     }
-    var levelNumber = document.getElementById('levelNumber'); levelNumber.innerHTML = game.currentLevel + 1;
+    var levelNumber = document.getElementById('levelNumber'); levelNumber.innerHTML = levelSetup[game.currentLevel].objective;
 }
 
 var moneyString = '<img src="images/money.png" class="costIcon" />';
@@ -823,7 +822,6 @@ var SetupLevel = function() {
     if (currencies.money <= endBossConditions['money'] && currencies.minions <= endBossConditions['minions']) {
 	showPopup('Dun Dun DUN!', 'The Ultimate Hero has arrived to destroy you!', function(){}, 'Okay...');
 	game.endBoss = true;
-	console.log('hello');
     }
     if (!game.endBoss && game.currentLevel > 0 && Math.random() < .5) {
     	showEventPopup(events[Math.floor(Math.random() * events.length)]);
@@ -1036,7 +1034,7 @@ var personManager = (function(){
     var names = ["Les Larimore", "Camie Collelo", "Joaquina Jordison", "Barry Bertone", "Lena Lu", "Hermila Hosea", "Deadra Diggins", "Quinton Quesada", "Dacia Darrington", "Tiesha Tse", "Bethann Bodin", "Nikita Noonkester", "Mackenzie Mahoney", "Krystle Kuyper", "Long Luckie", "Amado Accardo", "Addie Axford", "Carli Crosley", "Lawanda Loaiza", "Pamelia Pelkey", "Doyle Danford", "Sherry Streiff", "Shaunte Stiff", "Brenda Bratton", "Elwood Elton", "Elvira Eby", "Aurelio Arakaki", "Rosenda Roberti", "Roselle Rosario", "Denisse Daughtridge", "Harlan Herd", "Sharan Shattuck", "Scot Stigall", "Corene Cable", "Regenia Rethman", "Gertie Godina", "Kiyoko Klann", "Gilma Goltz", "Celsa Cola", "Ignacio Irvine", "Douglas Downey", "Izola Ishmael", "Shawn Sumter", "Lisa Losada", "Ines Indelicato", "Dick Dull", "Sun Sites", "Eusebio Edmonds", "Rosemarie Redfern", "Brad Blaine", "Mari Mohammed", "Garnet Gravitt", "Toccara Tanouye", "Gilbert Garden", "Hortense Hitchens", "Edmond Englehart", "Lucretia Leighty", "Larissa Lovvorn", "Regine Rhynes", "Delaine Dowd", "Barbera Berner", "Chastity Cammack", "Annabell Ault", "Digna Doggett", "Jane Joe", "Cathrine Charles", "Sana Sosebee", "Jeffery Jaco", "Evia Ellison", "Bryon Ballentine", "Arletha Armstrong", "Merrie Moshier", "Tabatha Tiernan", "Alden Akridge", "Arleen Abarca", "Fatima Favero", "Brain Bryand", "Carla Charboneau", "Ernesto Espinoza", "Alma Aoki", "Oren Omara", "Clare Clawson", "Kerstin Kintzel", "Frederick Feaster", "Elden Ericksen", "Rosalyn Roberson", "Tiesha Thurston", "Inez Ivey", "Melvina Mynatt", "Debora Demeter", "Danny Devoe", "Lenard Lach", "Lizbeth Lemmons", "Chana Conlon", "Vina Vannatta", "Essie Erbe", "Ouida Odwyer", "Titus Tooker", "Tai Tunney", "Laurine Lachermeier", "Jeanene Joyal", "Latrice Lathan", "Phebe Pushard", "Arcelia Aldape", "Ronni Reddish", "Alita Almeda", "Sharleen Southall", "Mel Mcateer", "Adelina Amundsen", "Kenisha Koenig", "Sharice Strahan", "Cordie Corum", "Cheryle Caplinger", "Odell Osterman", "Virginia Van", "Phil Perreira", "Donny Denk", "Maureen Mabrey", "Eleanora Elson", "Trula Thrower", "Shawanda Strauss", "Moriah Montz", "Mark Mcminn", "Elissa Eells", "Caroline Champlin", "Lavona Lintz", "Maya Mineo", "Velia Villani", "Cristal Collinsworth", "Youlanda Yarbrough", "Yevette Yong", "Julee Jonas", "Kay Kellum", "Jinny Johannes", "Franchesca Fairley", "Scarlett Spiller", "Isidra Inman", "Tanesha Toothaker", "Windy Wilcox", "Ethelyn Eastham", "Eartha Ericson", "Sommer Symes", "Sebastian Shireman", "Chadwick Cuneo", "Freddie Feldman", "Levi Lach", "Patience Parkhill", "Carma Culwell", "Felica Farquharson", "Bok Blackwelder", "Belva Brisson", "Shizue Stuber", "Domenic Demaio", "Charmain Chea", "Alejandra Alderete", "Philomena Poehler", "Tomi Telesco", "Isabell In", "Vince Vanderslice", "Lesha Littlefield", "Hollie Hunt", "Renee Rossin", "Doretta Durden", "Kathern Kelling", "Deane Dau", "Keisha Kissner", "Chelsey Cendejas", "Blake Bach", "Dante Dozier", "Russell Reck", "Nida Natal", "Luvenia Longino", "Shira Steen", "Susann Shy", "Essie Ehrlich", "Seth Spells", "Jessenia Jerman", "Floretta Forsman", "Rowena Reddix", "Elliot Emert", "Fabian Fortier", "Joaquin Joaquin", "Mitzie Mattie", "Vashti Villalvazo", "Myrle Mcneeley", "Nubia Noll", "Reda Rogers", "Ola Oliveira", "Tamala Torgrimson", "Clotilde Coutee", "Shelia Stowe", "Suellen Smelcer", "Dreama Dalrymple", "Jeffery Jeffers", "Florencio Fairless", "Giuseppe Gebhard", "Marilou Meuser", "Michel Mcquiggan", "Alissa Alvin", "Morgan Mac"];
 
     var obitTemplates = ['In a tragic workplace accident earlier today, NN was burnt to a crisp after falling into an open pit of lava. In statement released today, his employer, Totally Legitimate Enterprises Inc., has said that “NN will be missed. And hopefully, this will be a lesson to everyone to wear their safety goggles on the job.”',
-                         'NN has been missing now for 3 days and the worst is feared by the family and police. NN’s daughter, Stephanie Ann, has asked that everyone be on the look out for “the very best daddy there ever was because I miss him very much.”',
+                         'NN has been missing now for 3 days and the worst is feared by the family and police. NN’s daughter, Stephanie Ann, has asked that everyone be on the look out for “the very best parent there ever was.”',
                          'Funeral services will be held this Sunday for NN, beloved father and community member. He passed away at his job this past week in what were described as “perfectly normal circumstances involving mutant bees.” This marks the 23rd such occurrence this year.',
                          'NN, noted patron of the arts died today in a most unfortunate accident. His co-workers are especially bereaved. As one particularly close friend of his put it "Despite the thousands of bullets still housed in Turret 23, it will always feel empty without NN\'s cheerful face."',
                          'Tragedy struck Not A Secret Lair, LLC today when beloved employee NN was discovered to have a rare and fatal allergy to bullets. Coworkers were not available for comment as they were busy hiding.',
@@ -1283,7 +1281,8 @@ ResultsMode.prototype.drawScreen = function(victory) {
     ctx.textAlign = 'center';
     ctx.fillStyle = 'black';
     if (victory) {
-	ctx.fillText('You win!', canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText(levelSetup[game.currentLevel].objective, canvas.width / 2, canvas.height / 2 - 50);
+	ctx.fillText('has surrendered to your awesome might.', canvas.width / 2, canvas.height / 2 - 20);
 	var reward = levelSetup[game.currentLevel]['currencies']['money'];
 	ctx.fillText('You get ' + reward.toString() + ' dollars.', canvas.width / 2, canvas.height / 2 + 20);
     } else {
