@@ -1149,23 +1149,23 @@ var button2Callback = function(){};
 var okButtonCallback = function(){};
 
 var hidePopup = function() {
-    document.getElementById('popupBlocker').style.visible = 'hidden';
-    document.getElementById('popupMessage').style.visible = 'hidden';
+    document.getElementById('popupBlocker').style.visibility = 'hidden';
+    document.getElementById('popupMessage').style.visibility = 'hidden';
 }
 
 var showPopup = function(title, text, okCallback, okText, oneCallback, oneText, twoCallback, twoText) {
-    // document.getElementById('popupBlocker').style.visible = 'visible';
-    // document.getElementById('popupMessage').style.visible = 'visible';
+    // document.getElementById('popupBlocker').style.visibility = 'visible';
+    // document.getElementById('popupMessage').style.visibility = 'visible';
     // document.getElementById('popupTitle').innerHTML = title;
     // document.getElementById('popupText').innerHTML = text;
     // var okButton = document.getElementById('okButton');
     // var button1 = document.getElementById('button1');
     // if (typeof okCallback !== 'undefined' && okCallback != null) {
-    // 	okButton.style.visible = 'visible';
+    // 	okButton.style.visibility = 'visible';
     // 	okButtonCallback = okCallback;
     // 	okButton.value = okText;
     // } else {
-    // 	okButton.style.visible = 'hidden';
+    // 	okButton.style.visibility = 'hidden';
     // }
     // WIP
 }
