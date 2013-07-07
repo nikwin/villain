@@ -109,6 +109,22 @@ var events = [
             {'text': 'Pay a dividend to your employees.', 'effect': 'tempReduceCurrency|2000'},
             {'text': 'Save on a Pinata', 'effect': 'killMinions|1'}
         ]
+    },
+    {
+        'title': 'New Social Game Company',
+        'text': 'A new social game company has just started in your area. Some minions are tempted by the higher pay and higher capacity for evil.',
+        'options': [
+            {'text': 'Match the higher pay', 'effect': 'minionSalaryIncrease:100'},
+            {'text': 'Sacrifice for the greater evil.', 'effect': 'killMinions|2'}
+        ]
+    },
+    {
+        'title': 'Webcomic Lampoons Your Work Culture',
+        'text': 'A webcomic making fun of your management techniques and corporate benefits has become wildly popular. This affront to your dignity cannot stand.',
+        'options': [
+            {'text': 'Prove that gigalaser beats pen', 'effect': 'killMinions|2'},
+            {'text': 'Improve work environment', 'effect': 'reduceCurrency|1000'}
+        ]
     }
 ];
 
