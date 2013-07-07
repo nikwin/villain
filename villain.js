@@ -804,20 +804,6 @@ Hero.prototype.draw = function(){
     }
 };
 
-var hireButtonPress = function(){};
-
-var fireButtonPress = function(){
-    alert("They're unionized.");
-};
-
-var expensesButtonPress = function(){
-};
-
-var schemeButtonPress = function(){
-};
-
-var hirePerson = function(){};
-
 var personManager = (function(){
     var people = [];
 
@@ -852,9 +838,41 @@ var personManager = (function(){
         },
         'people': function(){
             return people;
+        },
+        'salary': function(){
+            var total = 0;
+            for (var i = 0; i < people.length; i++){
+                total += people[i].salary;
+            }
+            return total;
         }
     }
 })();
+
+var hireButtonPress = function(){};
+
+var fireButtonPress = function(){
+    alert("They're unionized.");
+};
+
+var expensesButtonPress = function(){
+    document.getElementById('manager').style.display = 'none';
+    document.getElementById('hireList').style.display = 'block';
+    var people = personManager.people();
+    var html = 'People: ' + people.length + ' Money: ' + currencies.money + ' Cost: ' + personManager.salary();
+    html += '<table><tr><th>Name</th><th>Salary</th></tr>';
+    for (var i = 0; i < people.length; i++){
+        html += '<tr><td>' + people[i].name + '</td><td>' + people[i].salary + '</td></tr>';
+    }
+    html += '</table>';
+    html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+    document.getElementById('hireList').innerHTML = html;
+};
+
+var schemeButtonPress = function(){
+};
+
+var hirePerson = function(){};
 
 var homeButtonPress = function(){
     document.getElementById('game').style.display = 'none';
