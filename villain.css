@@ -223,7 +223,7 @@ td {
     position:absolute;
     text-align:center;
     top: 40px;
-    left; 5px;
+    left: 5px;
     width: 445px;
 }
 
@@ -303,4 +303,8 @@ td {
 
 #arrows {
     float:right;
+}
+
+#obitButton {
+    display: inline-block;
 }

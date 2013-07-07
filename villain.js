@@ -20,7 +20,6 @@ var randomKeyFromWeightedDict = function(dict){
         keys.push(key);
     }
     var choice = Math.floor(Math.random() * sum);
-    console.log("" + sum + " " + choice)
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
         if (dict[key] > choice){
@@ -259,6 +258,14 @@ var Currencies = function() {
     this.tech = 0;
 }
 
+Currencies.prototype.subtract = function(currency, amount) {
+    if (currency === 'money') {
+	this.money -= amount;
+    } else {
+	this[currency] = max(0, this[currency] - amount);
+    }
+}
+
 var currencies = new Currencies();
 
 var BaseDraw = function(x, y, color, image){
@@ -316,12 +323,14 @@ Square.prototype.draw = function() {
     }
 }
 
-var Shot = function(x, y, damage){
+var Shot = function(x, y, damage, target){
     this.basedraw = new BaseDraw(x, y, '#ffffff');
     this.basedraw.size = 10;
+    this.damage = damage;
+    this.target = target;
 }
 
-Shot.prototype.speed = 300;
+Shot.prototype.speed = 100;
 
 var getSquareDist = function(p1, p2){
     var x = p1[0] - p2[0];
@@ -329,22 +338,24 @@ var getSquareDist = function(p1, p2){
     return x*x + y*y;
 }
 
-Shot.prototype.update = function(interval, hero){
+Shot.prototype.update = function(interval){
     var dist = this.speed * interval;
-    var xRatio = (hero.x - this.basedraw.x) * (hero.x - this.basedraw.x);
-    var yRatio = (hero.y - this.basedraw.y) * (hero.y - this.basedraw.y);
+    var xRatio = (this.target.x - this.basedraw.x) * (this.target.x - this.basedraw.x);
+    var yRatio = (this.target.y - this.basedraw.y) * (this.target.y - this.basedraw.y);
     var sum = xRatio + yRatio;
-    this.basedraw.x += (xRatio * dist / sum) * ((hero.x  > this.basedraw.x) ? 1 : -1);
-    this.basedraw.y += (yRatio * dist / sum) * ((hero.y  > this.basedraw.y) ? 1 : -1);
-    if (getSquareDist([this.basedraw.x, this.basedraw.y], [hero.x, hero.y]) < 100){
-        hero.health -= this.damage;
-        hero.wasShot = .3;
+    this.basedraw.x += (xRatio * dist / sum) * ((this.target.x  > this.basedraw.x) ? 1 : -1);
+    this.basedraw.y += (yRatio * dist / sum) * ((this.target.y  > this.basedraw.y) ? 1 : -1);
+    if (getSquareDist([this.basedraw.x, this.basedraw.y], [this.target.x, this.target.y]) < 100){
+        this.target.health -= this.damage;
+        this.target.wasShot = .3;
         return true;
     }
     return false;
 }
 
 var Trap = function(x, y, props){
+    this.x = x;
+    this.y = y;
     this.basedraw = new BaseDraw(x, y, props['color'], props['image']);
     this.name = props['name'];
     this.range = props['range'];
@@ -356,6 +367,7 @@ var Trap = function(x, y, props){
     this.walkable = props['walkable'];
     this.nextFire = 0;
     this.cost = props['cost'];
+    this.shootable = props['shootable'];
     this.shots = [];
 };
 
@@ -370,13 +382,13 @@ Trap.prototype.fire = function(hero, time) {
 	return;
     }
     this.nextFire = 1 / this.fireRate;
-    this.shots.push(new Shot(this.basedraw.x, this.basedraw.y, this.damage));
+    this.shots.push(new Shot(this.basedraw.x, this.basedraw.y, this.damage, hero));
 }
 
 Trap.prototype.update = function(interval, hero) {
     this.fire(hero, interval);
     for (var i = this.shots.length - 1; i >= 0; i--){
-        if (this.shots[i].update(interval, hero)){
+        if (this.shots[i].update(interval)){
             this.shots.splice(i, 1);
         }
     }
@@ -517,7 +529,12 @@ Map.prototype.draw = function(){
         this.squares[i].draw();
     }
     for (var j = 0; j < this.traps.length; j++){
-        this.traps[j].basedraw.draw();
+        if (this.traps[j].draw != undefined){
+            this.traps[j].draw();
+        }
+        else{
+            this.traps[j].basedraw.draw();
+        }
     }
     var selectedTrap = this.selectedTrap;
     if (selectedTrap !== null) {
@@ -568,7 +585,7 @@ Map.prototype.getTouchFunction = function(){
 		    }
 		}
 		for (var currency in trap['cost']) {
-		    currencies[currency] -= Math.floor(discount * trap['cost'][currency]);
+		    currencies.subtract(currency, Math.floor(discount * trap['cost'][currency]));
 		}
                 var square = that.squares[i];
                 that.squares.splice(i, 1);
@@ -623,7 +640,8 @@ var allTraps = {
 	'damage': 5,
 	'fireRate': 2,
 	'walkable': false,
-        'fn': Trap
+        'fn': Trap,
+        'shootable': true
     },
     'punch': {
         'name': 'Punchy',
@@ -636,7 +654,8 @@ var allTraps = {
         'damage': 2,
         'fireRate': 2,
         'walkable': false,
-        'fn': PunchTrap
+        'fn': PunchTrap,
+        'shootable': true
     }
 };
 
@@ -688,11 +707,20 @@ var Hero = function(x, y){
     this.blocksTouching = [];
     this.wasShot = false;
     this.forcedVelocity = [0, 0];
+    this.shotCooldown = 0;
+    this.shots = [];
 };
 
-Hero.prototype.speed = 400;
+Hero.prototype.speed = 60;
+Hero.prototype.damage = 1;
+Hero.prototype.range = 3 * squareSize;
+
+Hero.prototype.isInRange = function(x, y){
+    return (getSquareDist([x, y], [this.x, this.y]) < this.range * this.range);
+}
 
 Hero.prototype.update = function(interval, allThings){
+    this.shotCooldown -= interval;
     this.wasShot -= interval;
     var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval + this.forcedVelocity[0] * interval;
     var newY = this.y + this.directions[this.currentDirection][1] * this.speed * interval + this.forcedVelocity[1] * interval;
@@ -702,7 +730,7 @@ Hero.prototype.update = function(interval, allThings){
         canMove = false;
     }
 
-    var blocksTouching = []
+    var blocksTouching = [];
     for (var i = 0; i < allThings.length; i++){
         if (collideRect(allThings[i].basedraw.getRect(), this.getRect([newX, newY]))){
             blocksTouching.push(allThings[i]);
@@ -733,8 +761,12 @@ Hero.prototype.update = function(interval, allThings){
                 }
             }
         }
+        if (allThings[i].shootable && (this.shotCooldown <= 0) && this.isInRange(allThings[i].basedraw.x, allThings[i].basedraw.y)){
+            this.shots.push(new Shot(this.x, this.y, this.damage, allThings[i]));
+            this.shotCooldown = .3;
+        }
     }
-    
+
     if (canMove){
         this.x = newX;
         this.y = newY;
@@ -781,6 +813,12 @@ Hero.prototype.update = function(interval, allThings){
             }
         }
     }
+
+    for (var i = this.shots.length - 1; i >= 0; i--){
+        if (this.shots[i].update(interval)){
+            this.shots.splice(i, 1);
+        }
+    }
 };
 
 Hero.prototype.snapSquare = function(direction){
@@ -803,6 +841,9 @@ Hero.prototype.draw = function(){
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
     }
+    for (var i = 0; i < this.shots.length; i++){
+        this.shots[i].basedraw.draw();
+    }
 };
 
 var getPersonSalary = function(person) {
@@ -811,16 +852,28 @@ var getPersonSalary = function(person) {
 
 var personManager = (function(){
     var people = [];
+    var obits = [];
+
+    var names = ["Les Larimore", "Camie Collelo", "Joaquina Jordison", "Barry Bertone", "Lena Lu", "Hermila Hosea", "Deadra Diggins", "Quinton Quesada", "Dacia Darrington", "Tiesha Tse", "Bethann Bodin", "Nikita Noonkester", "Mackenzie Mahoney", "Krystle Kuyper", "Long Luckie", "Amado Accardo", "Addie Axford", "Carli Crosley", "Lawanda Loaiza", "Pamelia Pelkey", "Doyle Danford", "Sherry Streiff", "Shaunte Stiff", "Brenda Bratton", "Elwood Elton", "Elvira Eby", "Aurelio Arakaki", "Rosenda Roberti", "Roselle Rosario", "Denisse Daughtridge", "Harlan Herd", "Sharan Shattuck", "Scot Stigall", "Corene Cable", "Regenia Rethman", "Gertie Godina", "Kiyoko Klann", "Gilma Goltz", "Celsa Cola", "Ignacio Irvine", "Douglas Downey", "Izola Ishmael", "Shawn Sumter", "Lisa Losada", "Ines Indelicato", "Dick Dull", "Sun Sites", "Eusebio Edmonds", "Rosemarie Redfern", "Brad Blaine", "Mari Mohammed", "Garnet Gravitt", "Toccara Tanouye", "Gilbert Garden", "Hortense Hitchens", "Edmond Englehart", "Lucretia Leighty", "Larissa Lovvorn", "Regine Rhynes", "Delaine Dowd", "Barbera Berner", "Chastity Cammack", "Annabell Ault", "Digna Doggett", "Jane Joe", "Cathrine Charles", "Sana Sosebee", "Jeffery Jaco", "Evia Ellison", "Bryon Ballentine", "Arletha Armstrong", "Merrie Moshier", "Tabatha Tiernan", "Alden Akridge", "Arleen Abarca", "Fatima Favero", "Brain Bryand", "Carla Charboneau", "Ernesto Espinoza", "Alma Aoki", "Oren Omara", "Clare Clawson", "Kerstin Kintzel", "Frederick Feaster", "Elden Ericksen", "Rosalyn Roberson", "Tiesha Thurston", "Inez Ivey", "Melvina Mynatt", "Debora Demeter", "Danny Devoe", "Lenard Lach", "Lizbeth Lemmons", "Chana Conlon", "Vina Vannatta", "Essie Erbe", "Ouida Odwyer", "Titus Tooker", "Tai Tunney", "Laurine Lachermeier", "Jeanene Joyal", "Latrice Lathan", "Phebe Pushard", "Arcelia Aldape", "Ronni Reddish", "Alita Almeda", "Sharleen Southall", "Mel Mcateer", "Adelina Amundsen", "Kenisha Koenig", "Sharice Strahan", "Cordie Corum", "Cheryle Caplinger", "Odell Osterman", "Virginia Van", "Phil Perreira", "Donny Denk", "Maureen Mabrey", "Eleanora Elson", "Trula Thrower", "Shawanda Strauss", "Moriah Montz", "Mark Mcminn", "Elissa Eells", "Caroline Champlin", "Lavona Lintz", "Maya Mineo", "Velia Villani", "Cristal Collinsworth", "Youlanda Yarbrough", "Yevette Yong", "Julee Jonas", "Kay Kellum", "Jinny Johannes", "Franchesca Fairley", "Scarlett Spiller", "Isidra Inman", "Tanesha Toothaker", "Windy Wilcox", "Ethelyn Eastham", "Eartha Ericson", "Sommer Symes", "Sebastian Shireman", "Chadwick Cuneo", "Freddie Feldman", "Levi Lach", "Patience Parkhill", "Carma Culwell", "Felica Farquharson", "Bok Blackwelder", "Belva Brisson", "Shizue Stuber", "Domenic Demaio", "Charmain Chea", "Alejandra Alderete", "Philomena Poehler", "Tomi Telesco", "Isabell In", "Vince Vanderslice", "Lesha Littlefield", "Hollie Hunt", "Renee Rossin", "Doretta Durden", "Kathern Kelling", "Deane Dau", "Keisha Kissner", "Chelsey Cendejas", "Blake Bach", "Dante Dozier", "Russell Reck", "Nida Natal", "Luvenia Longino", "Shira Steen", "Susann Shy", "Essie Ehrlich", "Seth Spells", "Jessenia Jerman", "Floretta Forsman", "Rowena Reddix", "Elliot Emert", "Fabian Fortier", "Joaquin Joaquin", "Mitzie Mattie", "Vashti Villalvazo", "Myrle Mcneeley", "Nubia Noll", "Reda Rogers", "Ola Oliveira", "Tamala Torgrimson", "Clotilde Coutee", "Shelia Stowe", "Suellen Smelcer", "Dreama Dalrymple", "Jeffery Jeffers", "Florencio Fairless", "Giuseppe Gebhard", "Marilou Meuser", "Michel Mcquiggan", "Alissa Alvin", "Morgan Mac"];
+
+    var obitTemplates = ['In a tragic workplace accident earlier today, NN was burnt to a crisp after falling into an open pit of lava. In statement released today, his employer, Totally Legitimate Enterprises Inc., has said that “NN will be missed. And hopefully, this will be a lesson to everyone to wear their safety goggles on the job.”',
+                         'NN has been missing now for 3 days and the worst is feared by the family and police. NN’s daughter, Stephanie Ann, has asked that everyone be on the look out for “the very best daddy there ever was because I miss him very much.”',
+                         'Funeral services will be held this Sunday for NN, beloved father and community member. He passed away at his job this past week in what were described as “perfectly normal circumstances involving mutant bees.” This marks the 23rd such occurrence this year.',
+                         'NN, noted patron of the arts died today in a most unfortunate. His co-workers are especially bereaved. As one particularly close friend of his put it "Despite the thousands of bullets still housed in Turret 23, it will always feel empty without NN\'s cheerful face."'];
 
     var getRandomPerson = function(){
         return {
-            'name': 'a',
+            'name': randomChoice(names),
             'salary': 10
         };
     }
 
     for (var i = 0; i < 10; i++){
         people.push(getRandomPerson());
+    }
+
+    var makeObituary = function(person){
+        return randomChoice(obitTemplates).replace(/NN/g, person.name);
     }
     
     return {
@@ -835,7 +888,7 @@ var personManager = (function(){
         'hire': function(person){
             if (currencies.money >= getPersonSalary(person)){
                 people.push(person);
-                currencies.money -= getPersonSalary(person);
+		currencies.subtract('money', getPersonSalary(person));
                 return true;
             }
             return false;
@@ -849,6 +902,14 @@ var personManager = (function(){
                 total += getPersonSalary(people[i]);
             }
             return total;
+        },
+        'kill': function(){
+            var i = Math.floor(Math.random() * people.length);
+            obits.push(makeObituary(people[i]))
+            people.splice(i, 1);
+        },
+        'obits': function(){
+            return obits;
         }
     }
 })();
@@ -876,6 +937,18 @@ var expensesButtonPress = function(){
 
 var schemeButtonPress = function(){
 };
+
+var obituariesButtonPress = function(){
+    document.getElementById('manager').style.display = 'none';
+    document.getElementById('hireList').style.display = 'block';
+    var obits = personManager.obits();
+    var html = '';
+    for (var i = 0; i < obits.length; i++){
+        html += '<p>' + obits[i] + '</p>';
+    }
+    html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+    document.getElementById('hireList').innerHTML = html;
+}
 
 var hirePerson = function(){};
 
@@ -976,6 +1049,9 @@ var ResultsMode = function(victory) {
     this.isFinished = false;
     bindHandler.clear();
     bindHandler.bindFunction(this.makeFinishScreen());
+    if (Math.random() < .5) {
+	showEventPopup(events[Math.floor(Math.random() * events.length)]);
+    }
 };
 
 ResultsMode.prototype.makeFinishScreen = function(){
@@ -1132,7 +1208,7 @@ TechMode.prototype.getTouchFunction = function() {
 		    return;
 		}
 		if (!game.hasModifier(techElement.tech['id'])) {
-		    currencies['tech'] -= techElement.tech['cost'];
+		    currencies.subtract('tech', techElement.tech['cost']);
 		    game.addModifier([techElement.tech['id']]);
 		}
             }
@@ -1214,6 +1290,20 @@ var parseEventEffect = function(effect) {
     return array;
 }
 
+var showEventPopup = function(event) {
+    switch(event['options'].length) {
+    case 1:
+	showPopup(event['title'], event['text'], function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text']);
+	break;
+    case 2:
+	showPopup(event['title'], event['text'], null, null, function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text'], function(){game.addModifier(parseEventEffect(event['options'][1]['effect']))}, event['options'][1]['text']);
+	break;
+    case 3:
+    showPopup(event['title'], event['text'], function(){game.addModifier(parseEventEffect(event['options'][0]['effect']))}, event['options'][0]['text'], function(){game.addModifier(parseEventEffect(event['options'][1]['effect']))}, event['options'][1]['text'], function(){game.addModifier(parseEventEffect(event['options'][2]['effect']))}, event['options'][2]['text']);
+	break;
+    }
+}
+
 var Game = function() {
     this.currentLevel = 0;
     this.modifiers = [];
@@ -1235,7 +1325,31 @@ Game.prototype.hasModifier = function(modifier) {
 Game.prototype.addModifier = function(modifier) {
     if (modifier[0] === 'tempReduceCurrency') {
 	var change = modifier[1].split(':');
-	currencies[change[0]] = max(currencies[change[0]] - parseInt(currencies[change[1]]), 0);
+	currencies.subtract(change[0], parseInt(change[1]));
+	return;
+    } else if (modifier[0] === 'reduceCurrency') {
+	var change = modifier[1].split(':');
+	currencies.subtract(change[0], parseInt(change[1]));
+	if (game.hasModifier('reduceCurrency')) {
+	    var currModifier = game.getModifier('reduceCurrency');
+	    for (var i = 1; i < currModifier.length; i++) {
+		var currChange = currModifier[i].split(':');
+		if (currChange[0] === change[0]) {
+		    currModifier[i] = change[0] + ':' + (parseInt(change[1]) + parseInt(currChange[1])).toString();
+		    return;
+		}
+	    }
+	    currModifier.push(modifier[1]);
+	    return;
+	}
+    } else if (modifier[0] === 'killMinions') {
+	var number = parseInt(modifier[1]);
+	for (var i = 0; i < number; i++) {
+	    if (personManager.people().length > 0) {
+		personManager.kill();
+	    }
+	}
+	return;
     }
     this.modifiers.push(modifier);
 }
@@ -1253,27 +1367,18 @@ Game.prototype.updateForLevel = function() {
     } else {
 	currencies.tech += level['currencies']['tech'];
     }	
-    updateHud();
-}
-
-Game.prototype.removeTemporaryModifiers = function() {
-    var removed = 0;
-    var length = this.modifiers.length;
-    for (var i = 0; i < length; i++) {
-	var modifierID = this.modifiers[i - removed][0];
-	for (var j = 0; j < temporaryModifiers.length; j++) {
-	    if (modifierID === temporaryModifiers[j]) {
-		this.modifiers.splice(i - removed, 1);
-		removed++;
-		break;
-	    }
+    if (this.hasModifier('reduceCurrency')) {
+	var modifier = this.getModifier('reduceCurrency');
+	for (var i = 1; i < modifier.length; i++) {
+	    var change = modifier[i].split(':');
+	    currencies.subtract(change[0], parseInt(change[1]));
 	}
     }
+    updateHud();
 }
 
 Game.prototype.incrementLevel = function() {
     this.currentLevel = min(levelSetup.length - 1, this.currentLevel + 1);
-    this.removeTemporaryModifiers();
     this.updateForLevel();
 }
 
