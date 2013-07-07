@@ -1049,6 +1049,9 @@ var ResultsMode = function(victory) {
     this.isFinished = false;
     bindHandler.clear();
     bindHandler.bindFunction(this.makeFinishScreen());
+    if (Math.random() < .5) {
+	showEventPopup(events[Math.floor(Math.random() * events.length)]);
+    }
 };
 
 ResultsMode.prototype.makeFinishScreen = function(){
