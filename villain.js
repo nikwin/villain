@@ -780,8 +780,8 @@ var allTraps = {
             'money': 10,
             'minions': 2
         },
-        'range': 5 * squareSize,
-        'damage': 2,
+        'range': 4 * squareSize,
+        'damage': 1,
         'slow': 2,
         'fireRate': 4,
         'walkable': false,
