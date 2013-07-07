@@ -923,7 +923,7 @@ var personManager = (function(){
     var getRandomPerson = function(){
         return {
             'name': randomChoice(names),
-            'salary': 10
+            'salary': defaultSalary
         };
     }
 
@@ -962,6 +962,12 @@ var personManager = (function(){
             }
             return total;
         },
+	'lifeInsurance': function() {
+	    return Math.floor(obits.length * 0.5 * getPersonSalary(getRandomPerson()));
+	},
+	'totalCost': function() {
+	    return this.salary() + this.lifeInsurance();
+	},
         'kill': function(){
             var i = Math.floor(Math.random() * people.length);
             obits.push(makeObituary(people[i]))
@@ -984,7 +990,7 @@ var expensesButtonPress = function(){
     //document.getElementById('manager').style.display = 'none';
     document.getElementById('HRWindow').style.display = 'block';
     var people = personManager.people();
-    var html = 'People: ' + people.length + ' Money: ' + currencies.money + ' Cost: ' + personManager.salary();
+    var html = 'People: ' + people.length + ' Money: ' + currencies.money + ' Cost: ' + personManager.salary() + ' Life Insurance: ' + personManager.lifeInsurance();
     html += '<table><tr><th>Name</th><th>Salary</th></tr>';
     for (var i = 0; i < people.length; i++){
         html += '<tr><td>' + people[i].name + '</td><td>' + getPersonSalary(people[i]) + '</td></tr>';
@@ -1286,9 +1292,6 @@ TechMode.prototype.getTouchFunction = function() {
     };
 }
 
-var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}},
-                  {'currencies': {'money': 300, 'tech': 3, 'minions': 10}}];
-
 var henchpeopleString = function(string) {
     if (game.hasModifier('henchpeople')) {
 	return string.replace(/henchmen/g, 'henchpeople').replace(/Henchmen/g, 'Henchpeople');
@@ -1487,6 +1490,7 @@ Game.prototype.updateForLevel = function() {
 Game.prototype.incrementLevel = function() {
     this.currentLevel = min(levelSetup.length - 1, this.currentLevel + 1);
     this.updateForLevel();
+    currencies.money -= personManager.totalCost();
 }
 
 Game.prototype.update = function(interval) {
