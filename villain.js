@@ -658,7 +658,7 @@ var allTraps = {
         'desc': 'This ingenious trap will knock any hero back a few paces. Perfect for keeping them in range of your most highly trained guards.',
         'cost': {
             'money': 10,
-            'minions': 1
+            'minions': 2
         },
         'range': 2 * squareSize,
         'damage': 2,
@@ -952,7 +952,7 @@ var expensesButtonPress = function(){
         html += '<tr><td>' + people[i].name + '</td><td>' + getPersonSalary(people[i]) + '</td></tr>';
     }
     html += '</table>';
-    html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+    html += '<input id="homeButton" onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
     document.getElementById('HRWindowText').innerHTML = html;
 };
 
@@ -967,7 +967,7 @@ var obituariesButtonPress = function(){
     for (var i = 0; i < obits.length; i++){
         html += '<p>' + obits[i] + '</p>';
     }
-    html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+    html += '<input id="homeButton" onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
     document.getElementById('HRWindowText').innerHTML = html;
 }
 
@@ -1000,7 +1000,7 @@ var ManagerLevel = function(){
             html += '<tr><td>'+props.name+'</td><td>'+getPersonSalary(props)+'</td><td><input onclick=\"hirePerson(' + i + ')\" type=\"button\" value=\"Hire\" /></td></tr>';
         }
         html += '</table>';
-        html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+        html += '<input id="homeButton" onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
         document.getElementById('HRWindowText').innerHTML = html;
     };
     hirePerson = function(i){

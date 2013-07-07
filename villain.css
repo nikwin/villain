@@ -278,7 +278,7 @@ td {
  width: 700px;
  height: 200px;
  border: 2px #4a4a4a solid;
- display: block;
+ display: none;
  margin-top: 30px;
 }
 
@@ -338,7 +338,7 @@ td {
 }
 
 #HRWindow {
-    display: block;
+    display: none;
     position: relative;
     top: -110px;
     left: 100px;
