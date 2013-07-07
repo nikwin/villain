@@ -838,6 +838,7 @@ Hero.prototype.update = function(interval, allThings){
                     if (!allThings[j].hasBeenWalkedUpon){
                         this.currentDirection = i;
                         allThings[j].walkable = true;
+                        allThings[j].health = 0;
                         break;
                     }
                 }
