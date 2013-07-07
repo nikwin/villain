@@ -638,8 +638,7 @@ var allTraps = {
         'walkable': false,
         'fn': PunchTrap
     }
-    
-}
+};
 
 var getTrap = function() {
     var traps = document.getElementById("traps").traps;
@@ -672,6 +671,7 @@ SetupLevel.prototype.makePressFunction = function() {
     var that = this;
     return function(){
 	game.currentMode = new GameLevel(that.map);
+	waveButtonPress = function(){};
     }
 };
 
@@ -805,23 +805,12 @@ Hero.prototype.draw = function(){
     }
 };
 
-var hireButtonPress = function(){};
-
-var fireButtonPress = function(){
-    alert("They're unionized.");
-};
-
-var expensesButtonPress = function(){
-};
-
-var schemeButtonPress = function(){
-};
-
-var hirePerson = function(){};
+var getPersonSalary = function(person) {
+    return game.hasModifier('minionSalaryIncrease') ? person.salary + parseInt(game.getModifier('minionSalaryIncrease')[1]) : person.salary;
+}
 
 var personManager = (function(){
     var people = [];
-
 
     var getRandomPerson = function(){
         return {
@@ -844,18 +833,50 @@ var personManager = (function(){
             return potentials;
         },
         'hire': function(person){
-            if (currencies.money >= person.salary){
+            if (currencies.money >= getPersonSalary(person)){
                 people.push(person);
-                currencies.money -= person.salary;
+                currencies.money -= getPersonSalary(person);
                 return true;
             }
             return false;
         },
         'people': function(){
             return people;
+        },
+        'salary': function(){
+            var total = 0;
+            for (var i = 0; i < people.length; i++){
+                total += getPersonSalary(people[i]);
+            }
+            return total;
         }
     }
 })();
+
+var hireButtonPress = function(){};
+
+var fireButtonPress = function(){
+    alert("They're unionized.");
+};
+
+var expensesButtonPress = function(){
+    document.getElementById('manager').style.display = 'none';
+    document.getElementById('hireList').style.display = 'block';
+    var people = personManager.people();
+    var html = 'People: ' + people.length + ' Money: ' + currencies.money + ' Cost: ' + personManager.salary();
+    html += '<table><tr><th>Name</th><th>Salary</th></tr>';
+    for (var i = 0; i < people.length; i++){
+        html += '<tr><td>' + people[i].name + '</td><td>' + getPersonSalary(people[i]) + '</td></tr>';
+    }
+    html += '</table>';
+    html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
+    document.getElementById('hireList').innerHTML = html;
+};
+
+var schemeButtonPress = function(){
+};
+
+var hirePerson = function(){};
 
 var homeButtonPress = function(){
     document.getElementById('game').style.display = 'none';
@@ -881,7 +902,7 @@ var ManagerLevel = function(){
         html += '<table><tr><th>Name</th><th>Salary</th><th>Actions</th></tr>';
         for (var i = 0; i < that.potentials.length; i++){
             var props = that.potentials[i]
-            html += '<tr><td>'+props.name+'</td><td>'+props.salary+'</td><td><input onclick=\"hirePerson(' + i + ')\" type=\"button\" value=\"Hire\" /></td></tr>';
+            html += '<tr><td>'+props.name+'</td><td>'+getPersonSalary(props)+'</td><td><input onclick=\"hirePerson(' + i + ')\" type=\"button\" value=\"Hire\" /></td></tr>';
         }
         html += '</table>';
         html += '<input onclick=\"homeButtonPress()\" type=\"button\" value=\"Home\" />'
@@ -950,7 +971,7 @@ GameLevel.prototype.update = function(interval){
 var ResultsMode = function(victory) {
     game.incrementLevel();
     this.drawScreen(victory);
-    waveButtonPress = this.makePressFunction();
+    // waveButtonPress = this.makePressFunction();
     this.isFinished = false;
     bindHandler.clear();
     bindHandler.bindFunction(this.makeFinishScreen());
@@ -995,13 +1016,6 @@ ResultsMode.prototype.makePressFunction = function() {
 	game.currentMode = new TechMode();
     }
 }
-
-var villainTechTree = [
-    {'id': 'reload', 'description': 'Traps reload faster', 'cost': 1, 'children': ['research']},
-    {'id': 'research', 'description': 'More tech per level', 'cost': 1, 'children': []},
-    {'id': 'cheap', 'description': 'Traps are cheaper', 'cost': 1, 'children': ['score']},
-    {'id': 'score', 'description': 'Bonus points per level', 'cost': 1, 'children': []} // no effect yet
-]
 
 var TechElement = function(x, y, tech) {
     this.basedraw = new BaseDraw(x, y, '#ffffff');
@@ -1118,7 +1132,7 @@ TechMode.prototype.getTouchFunction = function() {
 		}
 		if (!game.hasModifier(techElement.tech['id'])) {
 		    currencies['tech'] -= techElement.tech['cost'];
-		    game.modifiers.push(techElement.tech['id']);
+		    game.addModifier([techElement.tech['id']]);
 		}
             }
         }
@@ -1128,18 +1142,35 @@ TechMode.prototype.getTouchFunction = function() {
 var levelSetup = [{'currencies': {'money': 200, 'tech': 0, 'minions': 10}},
                   {'currencies': {'money': 300, 'tech': 3, 'minions': 10}}];
 
+var parseEventEffect = function(effect) {
+    var array = effect.split('|');
+    return array;
+}
+
 var Game = function() {
     this.currentLevel = 0;
     this.modifiers = [];
 }
 
-Game.prototype.hasModifier = function(tech) {
+Game.prototype.getModifier = function(modifier) {
     for (var i = 0; i < this.modifiers.length; i++) {
-	if (this.modifiers[i] === tech) {
-	    return true;
+	if (this.modifiers[i][0] === modifier) {
+	    return this.modifiers[i];
 	}
     }
-    return false;
+    return null;
+}
+
+Game.prototype.hasModifier = function(modifier) {
+    return this.getModifier(modifier) != null;
+}
+
+Game.prototype.addModifier = function(modifier) {
+    if (modifier[0] === 'tempReduceCurrency') {
+	var change = modifier[1].split(':');
+	currencies[change[0]] = max(currencies[change[0]] - parseInt(currencies[change[1]]), 0);
+    }
+    this.modifiers.push(modifier);
 }
 
 Game.prototype.initialize = function() {
@@ -1158,8 +1189,24 @@ Game.prototype.updateForLevel = function() {
     updateHud();
 }
 
+Game.prototype.removeTemporaryModifiers = function() {
+    var removed = 0;
+    var length = this.modifiers.length;
+    for (var i = 0; i < length; i++) {
+	var modifierID = this.modifiers[i - removed][0];
+	for (var j = 0; j < temporaryModifiers.length; j++) {
+	    if (modifierID === temporaryModifiers[j]) {
+		this.modifiers.splice(i - removed, 1);
+		removed++;
+		break;
+	    }
+	}
+    }
+}
+
 Game.prototype.incrementLevel = function() {
     this.currentLevel = min(levelSetup.length - 1, this.currentLevel + 1);
+    this.removeTemporaryModifiers();
     this.updateForLevel();
 }
 
