@@ -492,13 +492,16 @@ var updateHud = function(hero, selectedTrap) {
     } else {	
 	var heroString = document.getElementById('hero'); heroString.innerHTML = '';
     }
-    var selectedString = document.getElementById('selected');
-    if (typeof selectedTrap !== 'undefined' && selectedTrap !== null) {
-	selectedString.innerHTML = selectedTrap.name + ', range: ' + selectedTrap.range + ', damage: ' + selectedTrap.damage + ', fire rate: ' + selectedTrap.fireRate;
-    } else {
-	selectedString.innerHTML = '';
-    }
     var levelNumber = document.getElementById('levelNumber'); levelNumber.innerHTML = game.currentLevel + 1;
+}
+
+var showTrapInfo = function(selectedTrap) {
+    var selectedString = document.getElementById('selected');
+    var trap = getTrap();
+    if (typeof selectedTrap !== 'undefined' && selectedTrap !== null) {
+        selectedString.innerHTML = "<div id='trapStats'>" + trap.name + ' -- Range: ' + trap.range + ', Damage: ' + trap.damage + ', Speed: ' + trap.fireRate + "</div>";
+        selectedString.innerHTML = selectedString.innerHTML + "<div id='trapDesc'>" + trap.desc + "</div>";
+    }
 }
 
 var Map = function(){
@@ -622,6 +625,7 @@ var allTraps = {
 	'name': 'Wall',
         'color': '#ffff00',
         'image': 'images/lava.png',
+        'desc': 'A standard issue lava pit. Useful for politely encouraging a wandering hero to not walk here. NOTE: Heroes have been known to break their way through any and all obstacles when trapped.',
 	'cost': {
 	    'money': 10,
 	    'minions': 0
@@ -636,6 +640,7 @@ var allTraps = {
 	'name': 'Turret',
         'color': '#cccccc',
         'image': 'images/turret.png',
+        'desc': 'What you have here is a minion with a gun. Surprisingly effective against low-ranked heroes, though your more skilled hero always seems to not get hit by your regular guards.',
 	'cost': {
 	    'money': 10,
 	    'minions': 1
@@ -650,6 +655,7 @@ var allTraps = {
     'punch': {
         'name': 'Punchy',
         'color': '#aaaaaa',
+        'desc': 'This ingenious trap will knock any hero back a few paces. Perfect for keeping them in range of your most highly trained guards.',
         'cost': {
             'money': 10,
             'minions': 1

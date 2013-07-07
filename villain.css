@@ -130,6 +130,25 @@ img.HUDIcon {
     background-color: #bbdeff;
     margin: 10px 0px 10px 0px;
     border: 1px ridge black;
+    font-family: sans-serif;
+}
+
+#hero {
+    text-align: center;
+    line-height: 20px;
+    height: 20px;
+    font-weight: 700;
+    font-size: 12pt;
+}
+
+#trapStats {
+    font-size: 10pt;
+    font-weight: 700;
+}
+
+#trapDesc {
+    font-style: italic;
+    font-size: 10pt;
 }
 
 #trapWindow {

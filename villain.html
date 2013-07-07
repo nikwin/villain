@@ -26,17 +26,17 @@
     </div>
       <div id="game">
         <div id="context">
-         <p id="hero"></p>
-         <p id="selected"></p>
+         <div id="hero"></div>
+         <div id="selected"></div>
         </div>
         <canvas id="canvas" width="540" height="540" align="center"></canvas>
         <div id="trapWindow">
             <form id="traps">
-              <input type="radio" id="trap1" name="traps" value="lava pit" checked />
+              <input type="radio" id="trap1" name="traps" value="lava pit" onclick="showTrapInfo('trap1')" />
               <label for="trap1" data-title="Lava well enough alone.">Lava Pit</label>
-              <input type="radio" id="trap2" name="traps" value="turret" />
-              <label for="trap2" data-title="A standard turret, useful for shooting things.">Gun Turret</label>
-              <input type="radio" id="trap3" name="traps" value="punch" />
+              <input type="radio" id="trap2" name="traps" value="turret" onclick="showTrapInfo('trap2')"/>
+              <label for="trap2" data-title="A standard turret, useful for shooting things." >Gun Turret</label>
+              <input type="radio" id="trap3" name="traps" value="punch" onclick="showTrapInfo('trap3')"/>
               <label for="trap3" data-title="Knock that hero back! He'll never see it coming.">Punch Turret</label>
             </form>
             <input onclick="waveButtonPress()" type="button" value="Send Wave" id="sendButton" />
