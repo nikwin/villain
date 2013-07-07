@@ -37,8 +37,23 @@
               <input type="radio" id="trap3" name="traps" value="punch" />
               <label for="trap3" data-title="Knock that hero back! He'll never see it coming.">Punch Turret</label>
             </form>
-            <input onclick="buttonPress()" type="button" value="Send Wave" id="sendButton"></input>
+            <input onclick="waveButtonPress()" type="button" value="Send Wave" id="sendButton" />
         </div>
+      </div>
+      <div id="manager" style="display:none">
+        <h1>Villain Pro 2.1</h1>
+        <table>
+          <tr>
+            <td><input onclick="hireButtonPress()" type="button" value="Hire" /></td>
+            <td><input onclick="fireButtonPress()" type="button" value="Fire" /></td>
+          </tr>
+          <tr>
+            <td><input onclick="expensesButtonPress()" type="button" value="Expenses" /></td>
+            <td><input onclick="schemeButtonPress()" type="button" value="Scheme" /></td>
+          </tr>
+        </table>
+      </div>
+      <div id="hireList">
       </div>
       <div id="results"></div>
       <div class="tooltip" id = "tip">
