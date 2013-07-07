@@ -322,11 +322,13 @@ Square.prototype.draw = function() {
     }
 }
 
-var Shot = function(x, y, damage, target, color){
+var Shot = function(x, y, damage, target, slow){
     this.basedraw = new BaseDraw(x, y, '#ffffff', 'images/bullet.png');
     this.basedraw.size = 10;
     this.damage = damage;
     this.target = target;
+    this.slow = slow;
+    console.log(this.slow);
 }
 
 Shot.prototype.speed = 150;
@@ -347,6 +349,10 @@ Shot.prototype.update = function(interval){
     this.basedraw.rotation = Math.atan((this.target.y - this.basedraw.y) / (this.target.x - this.basedraw.x)) + ((this.target.y  > this.basedraw.y) ? 0 : Math.pi);
     if (getSquareDist([this.basedraw.x, this.basedraw.y], [this.target.x, this.target.y]) < 100){
         this.target.health -= this.damage;
+        console.log(this.slow);
+        if (this.slow !== undefined){
+            this.target.speed -= this.slow;
+        }
         this.target.wasShot = .3;
         return true;
     }
@@ -380,8 +386,9 @@ Trap.prototype.fire = function(hero, time) {
 	return;
     }
     this.nextFire = 1 / this.fireRate;
+    console.log(this.slow);
     this.shots.push(new Shot(this.basedraw.x, this.basedraw.y,
-                             this.damage, hero));
+                             this.damage, hero, this.slow));
     this.shooting = 0.3;
     this.basedraw.rotation = 0;
     this.delRot = 0.1;
@@ -698,7 +705,7 @@ var allTraps = {
 	'range': 0,
 	'damage': 0,
 	'fireRate': 0,
-    'slow': 0,
+        'slow': 0,
 	'walkable': false,
         'fn': Trap,
         'health': 100,
@@ -716,7 +723,7 @@ var allTraps = {
 	'range': 3 * squareSize,
 	'damage': 5,
 	'fireRate': 2,
-    'slow': 0,
+        'slow': 0,
 	'walkable': false,
         'fn': Trap,
         'shootable': true,
@@ -760,6 +767,25 @@ var allTraps = {
         'shootable': false,
         'health': 10,
         'killable': false
+    },
+    'slow': {
+        'name': 'The Mild Chill',
+        'color': '#aaaaaa',
+        'image': 'images/turret2.png',
+        'desc': 'He was always cold as a child. People always said that he had no emotions, but the truth is he just cares too much.',
+        'cost': {
+            'money': 10,
+            'minions': 2
+        },
+        'range': 5 * squareSize,
+        'damage': 2,
+        'slow': 2,
+        'fireRate': 4,
+        'walkable': false,
+        'fn': Trap,
+        'shootable': true,
+        'health': 10,
+        'killable': true
     }
 };
 
@@ -788,7 +814,12 @@ var SetupLevel = function() {
     this.map = new Map();
     this.active = true;
     waveButtonPress = this.makePressFunction();
-    if (game.currentLevel > 0 && Math.random() < .5) {
+    if (currencies.money <= endBossConditions['money'] && currencies.minions <= endBossConditions['minions']) {
+	showPopup('Dun Dun DUN!', 'The Ultimate Hero has arrived to destroy you!', function(){}, 'Okay...');
+	game.endBoss = true;
+	console.log('hello');
+    }
+    if (!game.endBoss && game.currentLevel > 0 && Math.random() < .5) {
     	showEventPopup(events[Math.floor(Math.random() * events.length)]);
     }
 };
@@ -811,10 +842,10 @@ SetupLevel.prototype.makePressFunction = function() {
 
 var heroNames = ["Sir Felix", "Hero", "Sir Jeffington"];
 
-var Hero = function(x, y){
+var Hero = function(x, y, health, name) {
     this.x = x;
     this.y = y;
-    this.health = 100;
+    this.health = typeof health !== 'undefined' ? health : 100;
     this.currentDirection = 0;
     this.directions = [[1,0],
                        [0,1],
@@ -827,10 +858,11 @@ var Hero = function(x, y){
     this.shotCooldown = 0;
     this.shots = [];
 
-    this.name = randomChoice(heroNames);
+    this.name = typeof name != 'undefined' ? name : randomChoice(heroNames);
 };
 
 Hero.prototype.speed = 60;
+Hero.prototype.maxSpeed = 60;
 Hero.prototype.damage = 5;
 Hero.prototype.range = 3 * squareSize;
 
@@ -839,6 +871,9 @@ Hero.prototype.isInRange = function(x, y){
 }
 
 Hero.prototype.update = function(interval, allThings){
+    if (this.speed < this.maxSpeed){
+        this.speed = min(this.speed + interval, this.maxSpeed);
+    }
     this.shotCooldown -= interval;
     this.wasShot -= interval;
     var newX = this.x + this.directions[this.currentDirection][0] * this.speed * interval + this.forcedVelocity[0] * interval;
@@ -881,7 +916,7 @@ Hero.prototype.update = function(interval, allThings){
             }
         }
         if (allThings[i].shootable && (this.shotCooldown <= 0) && this.isInRange(allThings[i].basedraw.x, allThings[i].basedraw.y)){
-            this.shots.push(new Shot(this.x, this.y, this.damage, allThings[i]));
+            this.shots.push(new Shot(this.x, this.y, this.damage, allThings[i], 0));
             this.shotCooldown = .3;
         }
     }
@@ -1103,10 +1138,17 @@ var homeButtonPress = function(){
     document.getElementById('HRWindow').style.display = 'none';
 };
 
+var managerLevelOpened = false;
+
 var ManagerLevel = function(){
     homeButtonPress();
     this.running = true;
     this.potentials = personManager.generatePotentialPeople(5);
+
+    if (!managerLevelOpened) {
+	managerLevelOpened = true;
+	showPopup('Villain Pro 2.1', 'Hire minions to replace ones murdered by the hero! Review your finances! Endless fun awaits in Villain Pro 2.1!', null, null, function(){}, 'Huzzah!');
+    }
     
     this.hiredPeople = [];
     var that = this;
@@ -1152,7 +1194,11 @@ ManagerLevel.prototype.update = function(){
 
 var GameLevel = function(map) {
     this.map = map;
-    this.hero = new Hero(squareSize + 10, squareSize + 10);
+    if (game.endBoss) {
+	this.hero = new Hero(squareSize + 10, squareSize + 10, 10000, 'Jimmy Bond');
+    } else {
+	this.hero = new Hero(squareSize + 10, squareSize + 10);
+    }
     this.villain = map.villain;
     if (game.hasModifier('strike')) {
 	setTimeout(function() {
@@ -1450,6 +1496,7 @@ var showEventPopup = function(event) {
 var Game = function() {
     this.currentLevel = 0;
     this.modifiers = [];
+    this.endBoss = false;
 }
 
 Game.prototype.getModifier = function(modifier) {
