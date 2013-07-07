@@ -344,7 +344,7 @@ Shot.prototype.update = function(interval){
     var sum = xRatio + yRatio;
     this.basedraw.x += (xRatio * dist / sum) * ((this.target.x  > this.basedraw.x) ? 1 : -1);
     this.basedraw.y += (yRatio * dist / sum) * ((this.target.y  > this.basedraw.y) ? 1 : -1);
-    this.basedraw.rotation = Math.atan(yRatio / xRatio) + ((this.target.y  > this.basedraw.y) ? 0 : Math.pi);
+    this.basedraw.rotation = Math.atan((this.target.y - this.basedraw.y) / (this.target.x - this.basedraw.x)) + ((this.target.y  > this.basedraw.y) ? 0 : Math.pi);
     if (getSquareDist([this.basedraw.x, this.basedraw.y], [this.target.x, this.target.y]) < 100){
         this.target.health -= this.damage;
         this.target.wasShot = .3;
@@ -357,18 +357,15 @@ var Trap = function(x, y, props){
     this.x = x;
     this.y = y;
     this.basedraw = new BaseDraw(x, y, props['color'], props['image']);
-    this.name = props['name'];
-    this.range = props['range'];
-    this.damage = props['damage'];
-    this.fireRate = props['fireRate'];
+    for (var key in props){
+        this[key] = props[key];
+    }
     if (game.hasModifier('reload')) {
 	this.fireRate *= 1.5;
     }
-    this.walkable = props['walkable'];
     this.nextFire = 0;
-    this.cost = props['cost'];
-    this.shootable = props['shootable'];
     this.shots = [];
+    this.wasShot = 0;
 };
 
 Trap.prototype.isInRange = function(x, y) {
@@ -393,12 +390,21 @@ Trap.prototype.update = function(interval, hero) {
             this.shots.splice(i, 1);
         }
     }
+    this.wasShot -= interval;
+    return (this.health <= 0)
 }
 
 Trap.prototype.draw = function() {
     this.basedraw.draw();
     for (var i = 0; i < this.shots.length; i++){
         this.shots[i].basedraw.draw();
+    }
+
+    if (this.wasShot > 0){
+        ctx.fillStyle = '#000000';
+        for (var i = 0; i < 3; i ++){
+            ctx.fillRect(Math.random() * 60 + this.x, Math.random() * 60 + this.y, 3, 3);
+        }
     }
 }
 
@@ -625,6 +631,15 @@ Map.prototype.allThings = function(){
     return allThings;
 }
 
+Map.prototype.removeTrap = function(trap){
+    for (var i = this.traps.length; i >= 0; i--){
+        if (this.traps[i] == trap){
+            this.traps.splice(i, 1);
+            return;
+        }
+    }
+}
+
 var allTraps = {
     'lava pit': {
 	'name': 'Wall',
@@ -639,7 +654,8 @@ var allTraps = {
 	'damage': 0,
 	'fireRate': 0,
 	'walkable': false,
-        'fn': Trap
+        'fn': Trap,
+        'health': 100
     },
     'turret': {
 	'name': 'Turret',
@@ -655,7 +671,8 @@ var allTraps = {
 	'fireRate': 2,
 	'walkable': false,
         'fn': Trap,
-        'shootable': true
+        'shootable': true,
+        'health': 10
     },
     'punch': {
         'name': 'Punchy',
@@ -670,7 +687,8 @@ var allTraps = {
         'fireRate': 2,
         'walkable': false,
         'fn': PunchTrap,
-        'shootable': true
+        'shootable': true,
+        'health': 10
     }
 };
 
@@ -735,7 +753,7 @@ var Hero = function(x, y){
 };
 
 Hero.prototype.speed = 60;
-Hero.prototype.damage = 1;
+Hero.prototype.damage = 5;
 Hero.prototype.range = 3 * squareSize;
 
 Hero.prototype.isInRange = function(x, y){
@@ -862,10 +880,14 @@ heroImage.src = 'images/hero.png';
 
 Hero.prototype.draw = function(){
     ctx.drawImage(heroImage,this.x - 12, this.y - 16);
+
     if (this.wasShot > 0){
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(this.x + 7, this.y + 7, 6, 6);
+        ctx.fillStyle = '#000000';
+        for (var i = 0; i < 3; i ++){
+            ctx.fillRect(Math.random() * 60 + this.x, Math.random() * 60 + this.y, 3, 3);
+        }
     }
+    
     for (var i = 0; i < this.shots.length; i++){
         this.shots[i].basedraw.draw();
     }
@@ -1072,9 +1094,13 @@ GameLevel.prototype.draw = function(){
 GameLevel.prototype.update = function(interval){
     var allThings = this.map.allThings();
     this.hero.update(interval, allThings);
-    for (var i = 0; i < allThings.length; i++){
+    for (var i = allThings.length - 1; i >= 0; i--){
 	if (typeof allThings[i].update !== 'undefined') {
-	    allThings[i].update(interval, this.hero);
+	    if (allThings[i].update(interval, this.hero)){
+                this.map.removeTrap(allThings[i]);
+                personManager.kill();
+                console.log('kill');
+            }
 	}
     }
     updateHud(this.hero, this.map.selectedTrap);
