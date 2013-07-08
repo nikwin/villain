@@ -718,7 +718,7 @@ var allTraps = {
     'permalava': {
 	'name': 'Lava Pit',
         'color': '#ffff00',
-        'image': 'images/lava.png',
+        'image': 'images/bricks.png',
         'desc': 'A standard issue lava pit. Useful for politely encouraging a wandering hero to not walk here. NOTE: Heroes have been known to break their way through any and all obstacles when trapped.',
 	'cost': {
 	    'money': 100,
@@ -1313,6 +1313,7 @@ ResultsMode.prototype.drawScreen = function(victory) {
 	var reward = levelSetup[game.currentLevel]['currencies']['money'];
         showPopup('VICTORY',levelSetup[game.currentLevel - 1].objective + ' has surrendered to your awesome might!<br />Funds Extorted: ' + reward.toString() + '!',function(){that.isFinished = true;},'Excellent');
     } else {
+    clearScreen();
 	ctx.fillText('You lose.', canvas.width / 2, canvas.height / 2 - 100);
 	ctx.fillText('You got to level ' + (game.currentLevel + 1) + '.', canvas.width / 2, canvas.height / 2 - 60);
 	ctx.fillText('You spent ' + moneySpent + ' dollars.', canvas.width / 2, canvas.height / 2 - 20);
