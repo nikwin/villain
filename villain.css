@@ -380,3 +380,22 @@ td {
 #schemeButton {
     float:right;
 }
+
+#helpfulLinks{
+    width: 704px;
+    height: 28px;
+    border: 1px solid black;
+    background-color: #bbdeff;
+    border-radius: 6px 6px 6px 6px;
+
+}
+
+.helpLink{
+    position:relative;
+    top: 4px;
+    left: 2px;
+    height: 14px;
+    width: 30px;
+    border: 0px ridge black;
+    padding: 2px;
+}
