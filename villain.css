@@ -376,3 +376,7 @@ td {
     background-color: #FFFFFF;
     border: 2px #4a4a4a solid;
 }
+
+#schemeButton {
+    float:right;
+}
