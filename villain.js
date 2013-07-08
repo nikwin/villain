@@ -1040,7 +1040,7 @@ var personManager = (function(){
                          'Tragedy struck Not A Secret Lair, LLC today when beloved employee NN was discovered to have a rare and fatal allergy to bullets. Coworkers were not available for comment as they were busy hiding.',
                          'NN is no longer with us. NN has never been with us. NN was never an employee. This reporter was mistaken.',
                          'Local entrepreneur, NN, passed away recently following an industrial accident at Loving Hugs Inc. A closed-casket service was held yesterday as NN\'s body has been reportedly devoured by piranhas.',
-			 'NN lost his life yesterday while heroically defending his workplace from an intruder. When questioned about NN, management said, "Who do you mean, Bob? I thought he\'s still with us."'
+			 'NN lost his life yesterday while heroically defending his workplace from an intruder. When questioned about NN, management said, "Who are you talking about? I thought they left last week."'
 			];
 
     var getRandomPerson = function(){
