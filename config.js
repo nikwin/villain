@@ -141,6 +141,14 @@ var events = [
 	    {'text': 'Stock the break room with video games.', 'effect': 'tempReduceCurrency|1000'},
 	    {'text': 'Refuse. Forcefully.', 'effect': 'killMinions|1'}
 	]
+    },
+    {
+        'title': 'Telecommuting',
+        'text': 'Your employees have asked to start telecommuting. Apparently they believe in the heresy known as \"Work-life balance\"',
+        'options': [
+            {'text': 'Create the necessary robots', 'effect': 'tempReduceCurrency:2000'},
+            {'text': 'They can telecommute from the AFTERLIFE.', 'effect': 'killMinions|2'}
+        ]
     }
 ];
 
