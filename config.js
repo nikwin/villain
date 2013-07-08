@@ -131,8 +131,24 @@ var events = [
 	'text': 'Your prized genetically enhanced sharks have decided to turn vegetarian. This will make you a laughingstock at the next annual villain convention.',
 	'options': [
 	    {'text': 'Remind them how tasty henchmen flesh is', 'effect': 'killMinions|2'},
-	    {'text': 'Start over with your breeding programs', 'effect': 'reduceCurrency|1000'},
+	    {'text': 'Start over with your breeding programs', 'effect': 'reduceCurrency|1000'}
 	]
+    },
+    {
+	'title': 'Rest for the Wicked',
+	'text': 'Your henchmen have been complaining recently that the break room is too empty. Actually, they say there is no break room at all.',
+	'options': [
+	    {'text': 'Stock the break room with video games.', 'effect': 'tempReduceCurrency|1000'},
+	    {'text': 'Refuse. Forcefully.', 'effect': 'killMinions|1'}
+	]
+    },
+    {
+        'title': 'Telecommuting',
+        'text': 'Your employees have asked to start telecommuting. Apparently they believe in the heresy known as \"Work-life balance\"',
+        'options': [
+            {'text': 'Create the necessary robots', 'effect': 'tempReduceCurrency:2000'},
+            {'text': 'They can telecommute from the AFTERLIFE.', 'effect': 'killMinions|2'}
+        ]
     }
 ];
 
