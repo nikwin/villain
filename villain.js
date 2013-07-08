@@ -686,6 +686,10 @@ Map.prototype.removeTrap = function(trap){
     }
 
     this.traps.push(new Trap(trap.x, trap.y, allTraps['grave']));
+    
+    if (trap === this.selectedTrap) {
+	this.selectedTrap = null;
+    }
 
     for (var i = this.traps.length; i >= 0; i--){
         if (this.traps[i] == trap){
@@ -1288,11 +1292,14 @@ var ResultsMode = function(victory) {
     }
     resetMinions();
     this.victory = victory;
-    this.drawScreen(victory);
     // waveButtonPress = this.makePressFunction();
     this.isFinished = false;
     bindHandler.clear();
-    // bindHandler.bindFunction(this.makeFinishScreen());
+    if (!victory) {
+	clearScreen();
+	bindHandler.bindFunction(this.makeFinishScreen());
+    }
+    this.drawScreen(victory);
 };
 
 ResultsMode.prototype.makeFinishScreen = function(){
@@ -1303,16 +1310,14 @@ ResultsMode.prototype.makeFinishScreen = function(){
 }
 
 ResultsMode.prototype.drawScreen = function(victory) {
-    var heroString = document.getElementById('hero');
-    heroString.innerHTML = '';
-    ctx.font = '20pt Arial';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'black';
     if (victory) {
 	var that = this;
 	var reward = levelSetup[game.currentLevel]['currencies']['money'];
         showPopup('VICTORY',levelSetup[game.currentLevel - 1].objective + ' has surrendered to your awesome might!<br />Funds Extorted: ' + reward.toString() + '!',function(){that.isFinished = true;},'Excellent');
     } else {
+	ctx.font = '20pt Arial';
+	ctx.textAlign = 'center';
+	ctx.fillStyle = 'black';
 	ctx.fillText('You lose.', canvas.width / 2, canvas.height / 2 - 100);
 	ctx.fillText('You got to level ' + (game.currentLevel + 1) + '.', canvas.width / 2, canvas.height / 2 - 60);
 	ctx.fillText('You spent ' + moneySpent + ' dollars.', canvas.width / 2, canvas.height / 2 - 20);
