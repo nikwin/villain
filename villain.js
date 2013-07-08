@@ -1516,11 +1516,11 @@ var showEventPopup = function(event) {
 }
 
 var showHelpPopup = function(){
-    showPopup('Don\'t worry, you can do it!', 'Being an evil mastermind is easy. Click on towers to select them, then place them around your lair. The Hero will do his best to get to you.<br/> Dissuade him.', function(){}, 'Got it.');
+    showPopup('Don\'t worry, you can do it!', 'Being an evil mastermind is easy. Click on towers to select them, then place them around your lair. The Hero will do his best to get to you.<br/> Dissuade him.', null, null, function(){}, 'Got it.');
 } ;
 
 var showAboutPopup = function(){
-    showPopup('Take the Credit', 'This game was created for #molyjam 2013. Remember to think of all the hard work that goes into being a super villain!<br />Created by: Peter Chien, Susan Cho, Evan Losi, Nikhil Murthy, and Emily Saidel', function(){}, 'Thanks!');
+    showPopup('Take the Credit', 'This game was created for #molyjam 2013. Remember to think of all the hard work that goes into being a super villain!<br />Created by: Peter Chien, Susan Cho, Evan Losi, Nikhil Murthy, and Emily Saidel', null, null, function(){}, 'Thanks!');
 } ;
 
 var Game = function() {
