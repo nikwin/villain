@@ -149,6 +149,14 @@ var events = [
             {'text': 'Create the necessary robots', 'effect': 'tempReduceCurrency:2000'},
             {'text': 'They can telecommute from the AFTERLIFE.', 'effect': 'killMinions|2'}
         ]
+    },
+    {
+        'title': 'Dark and Stormy',
+        'text': 'After your last battle, you managed to take the hero\'s ginger-haired sidekick hostage as a prize. Now what do you do with it?',
+        'options': [
+            {'text': 'Summary Execution.', 'effect': 'tempReduceCurrency:500'},
+            {'text': 'Fiesta!', 'effect': 'tempReduceCurrency:500'}
+        ]
     }
 ];
 
