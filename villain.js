@@ -848,6 +848,7 @@ var Hero = function(x, y, health, name) {
     this.x = x;
     this.y = y;
     this.health = typeof health !== 'undefined' ? health : 250;
+    this.maxHealth = this.health;
     this.currentDirection = 0;
     this.directions = [[1,0],
                        [0,1],
@@ -874,7 +875,7 @@ Hero.prototype.isInRange = function(x, y){
 
 Hero.prototype.update = function(interval, allThings){
     if (this.speed < this.maxSpeed){
-        this.speed = min(this.speed + interval, this.maxSpeed);
+        this.speed = max(min(this.speed + interval, this.maxSpeed), 10);
     }
     this.shotCooldown -= interval;
     this.wasShot -= interval;
@@ -1009,9 +1010,10 @@ Hero.prototype.draw = function(){
     }
 
     ctx.fillStyle = '#ff0000';
-    ctx.fillRect(this.x, this.y - 26, this.health * .2, 8);
+    ctx.fillRect(this.x, this.y - 26, this.health * 60 / this.maxHealth, 8);
     ctx.fillStyle = '#000000';
-    ctx.fillRect(this.x + this.health * .2, this.y - 26, (250 - this.health) * .2, 8);
+    ctx.fillRect(this.x + this.health * 60 / this.maxHealth, this.y - 26,
+                 (this.maxHealth - this.health) * 60 / this.health, 8);
 };
 
 var lairImage = new Image();
