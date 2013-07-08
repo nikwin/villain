@@ -621,6 +621,10 @@ Map.prototype.getTouchFunction = function(){
 	var discount = game.hasModifier('cheap') ? .8 : 1;
 	if (selectedTrap !== null) {
 	    if (containsPos(selectedTrap.basedraw.getRect(), pos)) {
+            if (selectedTrap.sellable === false) {
+
+                 return;
+            }
 		for (var currency in selectedTrap.cost) {
 		    currencies[currency] += Math.floor(discount * selectedTrap.cost[currency]);
 		}
@@ -712,6 +716,7 @@ var allTraps = {
 	'range': 0,
 	'damage': 0,
 	'fireRate': 0,
+    'sellable': true,
         'slow': 0,
 	'walkable': false,
         'fn': Trap,
@@ -731,6 +736,7 @@ var allTraps = {
 	'range': 0,
 	'damage': 0,
 	'fireRate': 0,
+        'sellable': false,
         'slow': 0,
 	'walkable': false,
         'fn': Trap,
@@ -750,6 +756,7 @@ var allTraps = {
 	'range': 3 * squareSize,
 	'damage': 4,
 	'fireRate': 2,
+        'sellable': true,
         'slow': 0,
 	'walkable': false,
         'fn': Trap,
@@ -771,6 +778,7 @@ var allTraps = {
         'damage': 2,
         'slow': 0,
         'fireRate': 4,
+        'sellable': true,
         'walkable': false,
         'fn': PunchTrap,
         'shootable': true,
@@ -792,6 +800,7 @@ var allTraps = {
         'slow': 0,
         'fireRate': 0,
         'walkable': true,
+        'sellable': false,
         'fn': Trap,
         'shootable': false,
         'health': 10,
@@ -811,6 +820,7 @@ var allTraps = {
         'damage': 1,
         'slow': 2,
         'fireRate': 4,
+        'sellable': true,
         'walkable': false,
         'fn': Trap,
         'shootable': true,
