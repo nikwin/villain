@@ -83,7 +83,7 @@ var events = [
 	'text': 'A number of your minions have started grumbling about their wages. Some have even threatened to leave your glorious organization.',
 	'options': [
 	    {'text': 'Let them go. Into the piranha tanks.', 'effect': 'killMinions|2'},
-	    {'text': 'Very well, my Unstoppable Legions require financial support.', 'effect': 'minionSalaryIncrease|100'}
+	    {'text': 'Very well, my legions require financial support.', 'effect': 'minionSalaryIncrease|100'}
 	]
     },
     {
@@ -148,6 +148,22 @@ var events = [
         'options': [
             {'text': 'Create the necessary robots', 'effect': 'tempReduceCurrency:2000'},
             {'text': 'They can telecommute from the AFTERLIFE.', 'effect': 'killMinions|2'}
+        ]
+    },
+    {
+        'title': 'Asilove',
+        'text': 'One of your robots has learned to love.',
+        'options': [
+            {'text': 'Schedule it for destruction.', 'effect': 'killMinions|1'},
+            {'text': 'Start researching. Perhaps we can weaponize this "love"', 'effect': 'reduceCurrency:100'}
+        ]
+    },
+    {
+        'title': 'Pension Increase',
+        'text': 'Your minions require an increase to their pension fund in order to compensate for the risky work environment.',
+        'options': [
+            {'text': 'Fine. Let them eat cake.', 'effect': 'reduceCurrency:200'},
+            {'text': 'I will show them a risky environment!', 'effect': 'killMinions|1'}
         ]
     },
     {
