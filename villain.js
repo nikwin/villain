@@ -1013,7 +1013,7 @@ Hero.prototype.draw = function(){
     ctx.fillRect(this.x, this.y - 26, this.health * 60 / this.maxHealth, 8);
     ctx.fillStyle = '#000000';
     ctx.fillRect(this.x + this.health * 60 / this.maxHealth, this.y - 26,
-                 (this.maxHealth - this.health) * 60 / this.health, 8);
+                 (this.maxHealth - this.health) * 60 / this.maxHealth, 8);
 };
 
 var lairImage = new Image();
