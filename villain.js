@@ -802,7 +802,7 @@ var allTraps = {
         'name': 'The Mild Chill',
         'color': '#aaaaaa',
         'image': 'images/turret2.png',
-        'desc': 'He was always cold as a child. People always said that he had no emotions, but the truth is he just cares too much.',
+        'desc': 'He was always cold as a child. People said that he had no emotions, but the truth is he just cares too much.',
         'cost': {
             'money': 350,
             'minions': 2
@@ -1070,7 +1070,10 @@ var personManager = (function(){
                          'Local entrepreneur, NN, passed away recently following an industrial accident at Loving Hugs Inc. A closed-casket service was held yesterday as NN\'s body has been reportedly devoured by piranhas.',
 			 'NN lost his life yesterday while heroically defending his workplace from an intruder. When questioned about NN, management said, "Who are you talking about? I thought they left last week."',
                          'NN, 28, died today while working for Random Acts of Kindness Inc. According to his employer, he passed away after an extended Fable 3 session. His last words were reportedly \"It is everything I was ever promised.\"',
-                         'NN, esteemed member of the local Henchmen Union died today. He leaves behind him a legacy of dedication to work and care for small animals that will forever be remembered.'
+                         'NN, esteemed member of the local Henchmen Union died today. He leaves behind him a legacy of dedication to work and care for small animals that will forever be remembered.',
+                         'In another workplace related accident, NN died today while helping teach winged monkeys how to fly. He is survived by a host of family and friends.',
+                         'Happy Fun Times Inc has just released a statement concerning the death of NN. They are quoted as saying \"NN started as just an experiment, but we didn\'t think he should stay that way. We felt he should start becoming things.\"',
+                         'Today, or possibly two weeks ago, NN died in a time travel accident. This employer is quoted as saying, \"He was never very good anyway, unless through the mysteries of time travel he has become all-powerful, in which case he was the greatest employee ever.\"'
                         ];
 
     var getRandomPerson = function(){
