@@ -106,7 +106,7 @@ var events = [
         'title': 'Holiday Party',
         'text': 'It is time for the annual holiday party and bonus. You suppose they deserve it. But there are... other options.',
         'options': [
-            {'text': 'Pay a dividend to your employees.', 'effect': 'tempReduceCurrency|2000'},
+            {'text': 'Pay a dividend to your employees.', 'effect': 'tempReduceCurrency|money:2000'},
             {'text': 'Save on a Pinata', 'effect': 'killMinions|1'}
         ]
     },
@@ -114,7 +114,7 @@ var events = [
         'title': 'New Social Game Company',
         'text': 'A new social game company has just started in your area. Some minions are tempted by the higher pay and higher capacity for evil.',
         'options': [
-            {'text': 'Match the higher pay', 'effect': 'minionSalaryIncrease:100'},
+            {'text': 'Match the higher pay', 'effect': 'minionSalaryIncrease|100'},
             {'text': 'Sacrifice for the greater evil.', 'effect': 'killMinions|2'}
         ]
     },
@@ -123,7 +123,7 @@ var events = [
         'text': 'A webcomic making fun of your management techniques and corporate benefits has become wildly popular. This affront to your dignity cannot stand.',
         'options': [
             {'text': 'Prove that gigalaser beats pen', 'effect': 'killMinions|2'},
-            {'text': 'Improve work environment', 'effect': 'reduceCurrency|1000'}
+            {'text': 'Improve work environment', 'effect': 'reduceCurrency|money:1000'}
         ]
     },
     {
@@ -131,14 +131,14 @@ var events = [
 	'text': 'Your prized genetically enhanced sharks have decided to turn vegetarian. This will make you a laughingstock at the next annual villain convention.',
 	'options': [
 	    {'text': 'Remind them how tasty henchmen flesh is', 'effect': 'killMinions|2'},
-	    {'text': 'Start over with your breeding programs', 'effect': 'reduceCurrency|1000'}
+	    {'text': 'Start over with your breeding programs', 'effect': 'reduceCurrency|money:1000'}
 	]
     },
     {
 	'title': 'Rest for the Wicked',
 	'text': 'Your henchmen have been complaining recently that the break room is too empty. Actually, they say there is no break room at all.',
 	'options': [
-	    {'text': 'Stock the break room with video games.', 'effect': 'tempReduceCurrency|1000'},
+	    {'text': 'Stock the break room with video games.', 'effect': 'tempReduceCurrency|money:1000'},
 	    {'text': 'Refuse. Forcefully.', 'effect': 'killMinions|1'}
 	]
     },
@@ -146,7 +146,7 @@ var events = [
         'title': 'Telecommuting',
         'text': 'Your employees have asked to start telecommuting. Apparently they believe in the heresy known as \"Work-life balance\"',
         'options': [
-            {'text': 'Create the necessary robots', 'effect': 'tempReduceCurrency:2000'},
+            {'text': 'Create the necessary robots', 'effect': 'tempReduceCurrency|money:2000'},
             {'text': 'They can telecommute from the AFTERLIFE.', 'effect': 'killMinions|2'}
         ]
     },
@@ -170,8 +170,8 @@ var events = [
         'title': 'Dark and Stormy',
         'text': 'After your last battle, you managed to take the hero\'s ginger-haired sidekick hostage as a prize. Now what do you do with it?',
         'options': [
-            {'text': 'Summary Execution.', 'effect': 'tempReduceCurrency:500'},
-            {'text': 'Fiesta!', 'effect': 'tempReduceCurrency:500'}
+            {'text': 'Summary Execution.', 'effect': 'tempReduceCurrency|money:500'},
+            {'text': 'Fiesta!', 'effect': 'tempReduceCurrency|money:500'}
         ]
     }
 ];
