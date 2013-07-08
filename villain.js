@@ -565,10 +565,10 @@ var Map = function(){
     this.selectedTrap = null;
 
     for (var x = 0; x < 540; x += squareSize){
-        this.traps.push(new Trap(x, 0, allTraps['lava pit']));
-        this.traps.push(new Trap(x, 540 - squareSize, allTraps['lava pit']));
-        this.traps.push(new Trap(0, x, allTraps['lava pit']));
-        this.traps.push(new Trap(540 - squareSize, x, allTraps['lava pit']));
+        this.traps.push(new Trap(x, 0, allTraps['permalava']));
+        this.traps.push(new Trap(x, 540 - squareSize, allTraps['permalava']));
+        this.traps.push(new Trap(0, x, allTraps['permalava']));
+        this.traps.push(new Trap(540 - squareSize, x, allTraps['permalava']));
     }
     
     for (var x = squareSize; x < 540 - squareSize; x += squareSize){
@@ -712,7 +712,27 @@ var allTraps = {
 	'walkable': false,
         'fn': Trap,
         'health': 100,
-        'killable': false
+        'killable': false,
+        'neverWalkable': false
+    },
+    'permalava': {
+	'name': 'Lava Pit',
+        'color': '#ffff00',
+        'image': 'images/lava.png',
+        'desc': 'A standard issue lava pit. Useful for politely encouraging a wandering hero to not walk here. NOTE: Heroes have been known to break their way through any and all obstacles when trapped.',
+	'cost': {
+	    'money': 100,
+	    'minions': 0
+	},
+	'range': 0,
+	'damage': 0,
+	'fireRate': 0,
+        'slow': 0,
+	'walkable': false,
+        'fn': Trap,
+        'health': 100,
+        'killable': false,
+        'neverWalkable': true
     },
     'turret': {
 	'name': 'Guard',
@@ -731,7 +751,8 @@ var allTraps = {
         'fn': Trap,
         'shootable': true,
         'health': 40,
-        'killable': true
+        'killable': true,
+        'neverWalkable': false
     },
     'punch': {
         'name': 'Anti-Magnet',
@@ -750,7 +771,8 @@ var allTraps = {
         'fn': PunchTrap,
         'shootable': true,
         'health': 20,
-        'killable': true
+        'killable': true,
+        'neverWalkable': false
     },
     'grave': {
         'name': 'Gravestone',
@@ -769,7 +791,8 @@ var allTraps = {
         'fn': Trap,
         'shootable': false,
         'health': 10,
-        'killable': false
+        'killable': false,
+        'neverWalkable': false
     },
     'slow': {
         'name': 'The Mild Chill',
@@ -788,7 +811,8 @@ var allTraps = {
         'fn': Trap,
         'shootable': true,
         'health': 10,
-        'killable': true
+        'killable': true,
+        'neverWalkable': false
     }
 };
 
@@ -953,7 +977,7 @@ Hero.prototype.update = function(interval, allThings){
                 if (containsPos(allThings[j].basedraw.getRect(), blockPos)){
                     if (!allThings[j].hasBeenWalkedUpon){
                         this.currentDirection = i;
-                        allThings[j].walkable = true;
+                        allThings[j].walkable = !allThings[j].neverWalkable;
                         allThings[j].health = 0;
                         break;
                     }
