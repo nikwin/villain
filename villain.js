@@ -702,7 +702,7 @@ var allTraps = {
         'image': 'images/lava.png',
         'desc': 'A standard issue lava pit. Useful for politely encouraging a wandering hero to not walk here. NOTE: Heroes have been known to break their way through any and all obstacles when trapped.',
 	'cost': {
-	    'money': 10,
+	    'money': 100,
 	    'minions': 0
 	},
 	'range': 0,
@@ -720,7 +720,7 @@ var allTraps = {
         'image': 'images/turret.png',
         'desc': 'What you have here is a minion with a gun. Surprisingly effective against low-ranked heroes, though your more skilled hero always seems to not get hit by your regular guards.',
 	'cost': {
-	    'money': 10,
+	    'money': 250,
 	    'minions': 1
 	},
 	'range': 3 * squareSize,
@@ -739,7 +739,7 @@ var allTraps = {
         'image': 'images/magnet.png',
         'desc': 'This ingenious trap will knock any hero back a few paces. Perfect for keeping them in range of your most highly trained guards.',
         'cost': {
-            'money': 10,
+            'money': 300,
             'minions': 2
         },
         'range': 2 * squareSize,
@@ -766,7 +766,7 @@ var allTraps = {
         'slow': 0,
         'fireRate': 0,
         'walkable': true,
-        'fn': PunchTrap,
+        'fn': Trap,
         'shootable': false,
         'health': 10,
         'killable': false
@@ -777,7 +777,7 @@ var allTraps = {
         'image': 'images/turret2.png',
         'desc': 'He was always cold as a child. People always said that he had no emotions, but the truth is he just cares too much.',
         'cost': {
-            'money': 10,
+            'money': 350,
             'minions': 2
         },
         'range': 4 * squareSize,
@@ -847,7 +847,7 @@ var heroNames = ["Slab Bulkhead","Fridge Largemeat","Butch Deadlift","Flint Iron
 var Hero = function(x, y, health, name) {
     this.x = x;
     this.y = y;
-    this.health = typeof health !== 'undefined' ? health : 100;
+    this.health = typeof health !== 'undefined' ? health : 250;
     this.currentDirection = 0;
     this.directions = [[1,0],
                        [0,1],
@@ -1009,9 +1009,9 @@ Hero.prototype.draw = function(){
     }
 
     ctx.fillStyle = '#ff0000';
-    ctx.fillRect(this.x, this.y - 26, this.health * .6, 8);
+    ctx.fillRect(this.x, this.y - 26, this.health * .2, 8);
     ctx.fillStyle = '#000000';
-    ctx.fillRect(this.x + this.health * .6, this.y - 26, (100 - this.health) * .6, 8);
+    ctx.fillRect(this.x + this.health * .2, this.y - 26, (250 - this.health) * .2, 8);
 };
 
 var lairImage = new Image();

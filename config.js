@@ -146,7 +146,7 @@ var strikeEnd = {
     ]
 };
 
-var endBossConditions = {'money': 150, 'minions': 6};
+var endBossConditions = {'money': 4000, 'minions': 4};
 
 // implemented modifiers: reload, research, cheap, tempReduceCurrency, minionSalaryIncrease, reduceCurrency, killMinions, unions, strike, henchpeople
 // tempReduceCurrency and reduceCurrency don't work well with minions
