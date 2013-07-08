@@ -821,7 +821,7 @@ var SetupLevel = function() {
 	showPopup('Dun Dun DUN!', 'The Ultimate Hero has arrived to destroy you!', function(){}, 'Wait, what now?');
 	game.endBoss = true;
     }
-    if (!game.endBoss && game.currentLevel > 0 && Math.random() < .5) {
+    if (!game.endBoss && game.currentLevel > 0) {
     	showEventPopup(events[Math.floor(Math.random() * events.length)]);
     }
 };

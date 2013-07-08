@@ -91,7 +91,7 @@ var events = [
 	'text': 'The return on your minion’s 401(k) portfolios is... insufficient. Something must be done before they notice.',
 	'options': [
 	    {'text': 'Quietly smuggle in some funds from another account.', 'effect': 'tempReduceCurrency|money:500'},
-        {'text': 'Pay raise for everyone!', 'effect': 'minionSalaryIncrease|100'}
+            {'text': 'Pay raise for everyone!', 'effect': 'minionSalaryIncrease|100'}
 	]
     },
     {
@@ -125,6 +125,14 @@ var events = [
             {'text': 'Prove that gigalaser beats pen', 'effect': 'killMinions|2'},
             {'text': 'Improve work environment', 'effect': 'reduceCurrency|1000'}
         ]
+    },
+    {
+	'title': 'Vegetarian Sharks',
+	'text': 'Your prized genetically enhanced sharks have decided to turn vegetarian. This will make you a laughingstock at the next annual villain convention.',
+	'options': [
+	    {'text': 'Remind them how tasty henchmen flesh is', 'effect': 'killMinions|2'},
+	    {'text': 'Start over with your breeding programs', 'effect': 'reduceCurrency|1000'},
+	]
     }
 ];
 
