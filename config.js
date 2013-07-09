@@ -4,32 +4,32 @@ var levelSetup = [
         'objective': "A young child\'s lemonade stand"
     },
     {
-        'currencies': {'money': 2000, 'tech': 0},
+        'currencies': {'money': 4000, 'tech': 0},
         'objective': 'The hamburger place at the corner'
     },
     {
-        'currencies': {'money': 4000, 'tech': 0},
+        'currencies': {'money': 6000, 'tech': 0},
         'objective': 'The local bank office'
     },
     {
-        'currencies': {'money': 6000, 'tech': 0},
+        'currencies': {'money': 8000, 'tech': 0},
         'objective': 'A skyscraper full of business people'
     },
     {
-        'currencies': {'money': 8000, 'tech': 0},
+        'currencies': {'money': 10000, 'tech': 0},
         'objective': 'The downtown area'
     },
     {
-        'currencies': {'money': 10000, 'tech': 0},
+        'currencies': {'money': 12000, 'tech': 0},
         'objective': 'A medium sized city'
     },
     {
-        'currencies': {'money': 14000,
+        'currencies': {'money': 16000,
                        'tech': 0},
         'objective': 'A rather small state'
     },
     {
-        'currencies': {'money': 18000,
+        'currencies': {'money': 20000,
                        'tech': 0},
         'objective': 'The island-country'
     },
@@ -60,7 +60,7 @@ var levelSetup = [
     }
 ];
 
-var defaultSalary = 1000;
+var defaultSalary = 800;
 
 var villainTechTree = [
     {'id': 'reload', 'description': 'Traps reload faster', 'cost': 1, 'children': ['research']},
